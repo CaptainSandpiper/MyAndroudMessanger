@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MyChatApp</string>
+    <string name="welcome_text">Welcom to MessKul</string>
+    <string name="createAcc">Create new account</string>
+    <string name="LoginButton">Login</string>
+    <string name="create_act">Create a New Account</string>
+</resources>
