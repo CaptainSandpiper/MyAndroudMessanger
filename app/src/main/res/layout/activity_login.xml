@@ -44,7 +44,7 @@
 
                 <EditText android:layout_width="match_parent"
                           android:layout_height="wrap_content"
-                          android:id="@+id/loginEmailE"
+                          android:id="@+id/loginEmailEt"
                           android:background="@drawable/selector_bg_edit_2"
                           android:hint="Enter Email"
                           android:textSize="14sp"

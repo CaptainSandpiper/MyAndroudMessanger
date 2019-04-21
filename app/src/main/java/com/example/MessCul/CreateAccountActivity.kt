@@ -1,5 +1,6 @@
 package com.example.MessCul
 
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
@@ -61,6 +62,11 @@ class CreateAccountActivity : AppCompatActivity() {
                             if(task2.isSuccessful)
                             {
                                 Toast.makeText(this,"User Created!",Toast.LENGTH_LONG).show();
+                                var dashBoardIntent = Intent(this, DashboardActivity::class.java);
+                                dashBoardIntent.putExtra("name", dispalyName);
+                                startActivity(dashBoardIntent);
+                                finish();
+
                             }
                             else
                             {
