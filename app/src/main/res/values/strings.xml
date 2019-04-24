@@ -4,4 +4,11 @@
     <string name="createAcc">Create new account</string>
     <string name="LoginButton">Login</string>
     <string name="create_act">Create a New Account</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="logout">Logout</string>
+    <string name="settings">Settings</string>
+    <string name="change_pic">Change Picture</string>
+    <string name="change_status">Change Status</string>
 </resources>

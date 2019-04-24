@@ -13,4 +13,5 @@
     <color name="bgColor">#8f78ba</color>
     <color name="darkBg">#222222</color>
     <color name="green">#6aa62d</color>
+    <color name="white">#FDFDFD</color>
 </resources>
