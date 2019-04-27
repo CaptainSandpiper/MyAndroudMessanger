@@ -2,7 +2,7 @@ package com.example.MessCul.activities
 
 import android.content.Intent
 import android.graphics.Color
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -60,7 +60,7 @@ class DashboardActivity : AppCompatActivity() {
             {
                 //take user settingsActivity
                 startActivity(Intent(this, SettingsActivity::class.java));
-                finish();
+                //finish();
             }
         }
 
