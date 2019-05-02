@@ -151,7 +151,7 @@ class SettingsActivity : AppCompatActivity() {
                                     if (taskSnapshot.isSuccessful) {
                                         var updateObj = HashMap<String, Any>()
                                         updateObj.put("image", downloadUrl) //big image
-                                        updateObj.put("thumb", thumbUrl) //small image
+                                        updateObj.put("thumb_image", thumbUrl) //small image
 
                                         //we save the profile image
                                         mDatabase!!.updateChildren(updateObj)
