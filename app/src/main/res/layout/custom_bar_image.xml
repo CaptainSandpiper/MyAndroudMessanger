@@ -6,7 +6,27 @@
     <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/customBarCircleImage"
             android:layout_alignParentRight="true"
+            android:src="@drawable/profile_img"
             android:layout_width="45dp"
             android:layout_height="45dp"/>
+
+    <TextView
+            android:id="@+id/customBarName"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/grey_100"
+            android:text="Display Name"
+            android:paddingLeft="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    <!--<TextView-->
+            <!--android:id="@+id/customBarName"-->
+            <!--android:textStyle="bold"-->
+            <!--android:textSize="18sp"-->
+            <!--android:textColor="@color/grey_100"-->
+            <!--android:text="Display Name"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"/>-->
 
 </RelativeLayout>

@@ -3,6 +3,7 @@ package com.example.MessCul.activities
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +17,8 @@ import com.google.firebase.database.*
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chat.*
+import kotlinx.android.synthetic.main.custom_bar_image.*
+import kotlinx.android.synthetic.main.custom_bar_image.view.*
 
 class ChatActivity : AppCompatActivity() {
 
@@ -37,6 +40,19 @@ class ChatActivity : AppCompatActivity() {
         mLinearLayoutManager!!.stackFromEnd = true;
 
         supportActionBar!!.setDisplayHomeAsUpEnabled(true);
+        supportActionBar!!.setDisplayShowCustomEnabled(true);
+        var inflater = this.getSystemService(android.content.Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater;
+
+        var actionBarView = inflater.inflate(R.layout.custom_bar_image, null);
+        actionBarView.customBarName.text = intent.extras.getString("name");
+
+        var profileImgLink = intent.extras.get("profile").toString();
+        Picasso.get()
+            .load(profileImgLink)
+            .placeholder(R.drawable.profile_img)
+            .into(actionBarView.customBarCircleImage);
+
+        supportActionBar!!.customView = actionBarView;
 
         mFirebaseDatabaseRef = FirebaseDatabase.getInstance().reference;
         mFirebaseAdapter = object: FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder>(FriendlyMessage::class.java,
