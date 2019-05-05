@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <androidx.cardview.widget.CardView
+            android:layout_width="395dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="8dp" android:layout_marginRight="8dp" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp" android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent">
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/messengerImageView"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/profile_img"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"/>
+
+            <TextView
+                    android:id="@+id/messegeTextView"
+                    android:layout_toRightOf="@id/messengerImageView"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginLeft="4dp"
+                    android:text="Message"
+                    android:layout_below="@+id/messengerTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            <TextView
+                    android:id="@+id/messengerTextView"
+                    android:text="Name of Messenger"
+                    android:layout_toRightOf="@+id/messengerImageView"
+                    android:padding="5dp"
+                    android:textSize="12sp"
+                    android:textStyle="italic"
+                    android:background="@drawable/rounded_corner2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

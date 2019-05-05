@@ -1,13 +1,18 @@
 package com.example.MessCul.adapters
 
+import android.app.AlertDialog
 import com.google.firebase.database.DatabaseReference
 import android.content.Context;
+import android.content.DialogInterface
+import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.MessCul.R
+import com.example.MessCul.activities.ChatActivity
+import com.example.MessCul.activities.ProfileActivity
 import com.example.MessCul.models.Users
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.google.firebase.database.FirebaseDatabase
@@ -30,24 +35,38 @@ class UsersAdapter(databaseQuery: DatabaseReference, var context: Context): Fire
         viewHolder!!.bindView(model!!, context );
 
         viewHolder.itemView.setOnClickListener{
-            //TODO: create a pop up dialog where user can chose send a mess or see profile
-            Toast.makeText(context,"User row Clicked $userId",Toast.LENGTH_LONG).show();
+           //create an alert dialog to current users if they want to see a profile or send message
+            var options = arrayOf("Open Profile", "Send Message");
+            var builder = AlertDialog.Builder(context)
+            builder.setTitle("Select Options");
+            builder.setItems(options, DialogInterface.OnClickListener{dialogInterface, i ->
+
+                var userName = viewHolder.userNameTxt;
+                var userStat = viewHolder.userStatusTxt;
+                var profilePic = viewHolder.userProfilePicLink;
+
+                if(i == 0)
+                {
+                    //open user profile
+                    var profileIntetn = Intent(context, ProfileActivity::class.java);
+                    profileIntetn.putExtra("userId", userId);
+                    context.startActivity(profileIntetn);
+                }
+                else
+                {
+                    //send message
+                    var chatIntent = Intent(context, ChatActivity::class.java)
+                    chatIntent.putExtra("userId", userId);
+                    chatIntent.putExtra("name", userName);
+                    chatIntent.putExtra("status", userStat);
+                    chatIntent.putExtra("profile", profilePic);
+                    context.startActivity(chatIntent);
+                }
+            });
+
+            builder.show();
         }
     }
-
-//    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-//    }
-
-//    override fun onBindViewHolder(viewHolder: UsersAdapter.ViewHolder, position: Int, model: Users) {
-//        var userId = getRef(position).key; // the unique firebase id for this current user!
-//        viewHolder!!.bindView(model!!, context );
-//
-//        viewHolder.itemView.setOnClickListener{
-//            //TODO: create a pop up dialog where user can chose send a mess or see profile
-//            Toast.makeText(context,"User row Clicked $userId",Toast.LENGTH_LONG).show();
-//        }
-//    }
 
     class ViewHolder(itemView: View):RecyclerView.ViewHolder(itemView)
     {
