@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                                    xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="wrap_content">
 
     <androidx.cardview.widget.CardView
             android:layout_width="395dp"
@@ -24,7 +24,7 @@
                     android:layout_height="70dp"/>
 
             <TextView
-                    android:id="@+id/messegeTextView"
+                    android:id="@+id/messageTextView"
                     android:layout_toRightOf="@id/messengerImageView"
                     android:textSize="15sp"
                     android:textStyle="bold"
@@ -44,6 +44,17 @@
                     android:background="@drawable/rounded_corner2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/messengerImageViewRigth"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/profile_img"
+                    android:layout_alignParentRight="true"
+                    android:visibility="invisible"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"/>
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
