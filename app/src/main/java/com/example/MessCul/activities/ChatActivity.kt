@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.MessCul.R
 import com.example.MessCul.models.FriendlyMessage
+import com.example.MessCul.models.getDialogId
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -55,10 +56,13 @@ class ChatActivity : AppCompatActivity() {
         supportActionBar!!.customView = actionBarView;
 
         mFirebaseDatabaseRef = FirebaseDatabase.getInstance().reference;
+
+        var dialogId = getDialogId( mFirebaseUser!!.uid, userId.toString());
+
         mFirebaseAdapter = object: FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder>(FriendlyMessage::class.java,
                                                                                                 R.layout.item_message,
                                                                                                 MessageViewHolder::class.java,
-                                                                                                mFirebaseDatabaseRef!!.child("messages"))
+                                                                                                mFirebaseDatabaseRef!!.child("messages").orderByChild("dialogId").equalTo(dialogId.toString()))
         {
             override fun populateViewHolder(viewHolder: MessageViewHolder?, friendlyMessage: FriendlyMessage?, position: Int)
             {
@@ -147,7 +151,7 @@ class ChatActivity : AppCompatActivity() {
                 var currentUserName = intent.extras.get("name");
                 var mCurrentUserId = mFirebaseUser!!.uid;
 
-                var friendlyMessage =  FriendlyMessage(mCurrentUserId, messageEdt.text.toString().trim(), currentUserName.toString().trim())
+                var friendlyMessage =  FriendlyMessage(mCurrentUserId, messageEdt.text.toString().trim(), currentUserName.toString().trim(), userId.toString().trim())
 
                 mFirebaseDatabaseRef!!.child("messages")
                     .push().setValue(friendlyMessage); // push used because every message must have ow unique id
