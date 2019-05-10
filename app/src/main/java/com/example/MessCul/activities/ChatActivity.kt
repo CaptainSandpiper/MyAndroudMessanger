@@ -12,6 +12,7 @@ import com.example.MessCul.R
 import com.example.MessCul.models.FriendlyMessage
 import com.example.MessCul.models.getDialogId
 import com.firebase.ui.database.FirebaseRecyclerAdapter
+import com.google.android.gms.ads.MobileAds
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
@@ -20,8 +21,13 @@ import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.custom_bar_image.*
 import kotlinx.android.synthetic.main.custom_bar_image.view.*
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+
 
 class ChatActivity : AppCompatActivity() {
+
+    lateinit var mAdView : AdView;
 
     var userId:String? = null;
     var mFirebaseDatabaseRef:DatabaseReference? = null;
@@ -33,6 +39,14 @@ class ChatActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
+
+        ////banner
+        MobileAds.initialize(this,"ca-app-pub-3940256099942544~3347511713");
+
+        mAdView = findViewById(R.id.adView)
+        val adRequest = AdRequest.Builder().build()
+        mAdView.loadAd(adRequest)
+        ////delete
 
         mFirebaseUser = FirebaseAuth.getInstance().currentUser;
 

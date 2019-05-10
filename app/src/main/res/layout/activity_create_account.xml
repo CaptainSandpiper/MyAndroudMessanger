@@ -7,13 +7,13 @@
         android:layout_height="match_parent"
         tools:context=".activities.CreateAccountActivity"
 
-        android:background="@drawable/bg">
+        android:background="@color/darkBg">
 
         <androidx.cardview.widget.CardView
                 android:layout_width="300dp"
                 android:layout_height="330dp"
                 android:id="@+id/cv"
-                android:background="@color/colorAccent"
+                android:background="@color/darkBg"
                 android:layout_centerInParent="true"
                 app:cardCornerRadius="13dp"
                 android:elevation="4dp"
@@ -22,7 +22,7 @@
 
             <LinearLayout
                     android:orientation="vertical"
-                    android:background="@color/colorAccent"
+                    android:background="@color/cardview_dark_background"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 

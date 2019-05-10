@@ -24,7 +24,7 @@ class DashboardActivity : AppCompatActivity() {
         sectionAdapter = SectionPagerAdapter(supportFragmentManager);
         dashViewPagerId.adapter = sectionAdapter;
         mainTabs.setupWithViewPager(dashViewPagerId);
-        mainTabs.setTabTextColors(Color.WHITE, Color.GREEN);
+        mainTabs.setTabTextColors(Color.WHITE, Color.GRAY);
 
 
 

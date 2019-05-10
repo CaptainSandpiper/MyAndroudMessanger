@@ -5,7 +5,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg"
+        android:background="@color/darkBg"
         tools:context=".activities.MainActivity">
     <ImageView
             android:layout_width="110dp"
@@ -22,6 +22,7 @@
             android:layout_height="45dp"
             android:textAlignment="center"
             android:textAllCaps="true"
+            android:textColor="@color/white"
             android:id="@+id/textView" app:layout_constraintStart_toStartOf="parent" android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp" android:layout_marginTop="8dp"
@@ -39,7 +40,7 @@
             android:layout_marginRight="8dp" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/textView" android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintVertical_bias="0.077" android:background="@color/colorAccent"/>
+            app:layout_constraintVertical_bias="0.077" android:background="@drawable/bt_shape"/>
     <Button
             android:text="@string/LoginButton"
             android:layout_width="264dp"
@@ -50,5 +51,5 @@
             android:layout_marginRight="8dp" android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/createAccButton" android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintVertical_bias="0.105" android:background="@color/colorAccent"/>
+            app:layout_constraintVertical_bias="0.105" android:background="@drawable/bt_shape"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
