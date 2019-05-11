@@ -8,17 +8,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:792750372880:android:bf28db183c03be37",
+        "mobilesdk_app_id": "1:792750372880:android:3e76566eae382375",
         "android_client_info": {
-          "package_name": "com.example.MessCul"
+          "package_name": "com.kulikulad.MessCul"
         }
       },
       "oauth_client": [
         {
-          "client_id": "792750372880-m2sh9gpndn5albb2riib5245j4ao261j.apps.googleusercontent.com",
+          "client_id": "792750372880-1i8brkkhgi95nu0jjm1vmsndi649fqfv.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.MessCul",
+            "package_name": "com.kulikulad.MessCul",
             "certificate_hash": "53301d731402f0838ae781fd2613f7412fae2e98"
           }
         },

@@ -22,8 +22,8 @@
             android:src="@drawable/profile_img"/>
     <TextView
             android:text="Display Name"
-            android:layout_width="213dp"
-            android:layout_height="43dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/settingDisplayNameId" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
@@ -33,12 +33,12 @@
             android:textColor="@color/white"/>
     <TextView
             android:text="Display Status"
-            android:layout_width="356dp"
-            android:layout_height="69dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/settingsStatusText" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp" android:layout_marginTop="16dp"
+            android:layout_marginRight="8dp" android:layout_marginTop="12dp"
             app:layout_constraintTop_toBottomOf="@+id/settingDisplayNameId"
             android:textStyle="bold|italic" android:textSize="18sp" android:gravity="center"
             android:textColor="@color/white"/>
@@ -52,8 +52,10 @@
             android:id="@+id/settingChangeImgBtn" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp" android:layout_marginTop="24dp"
+            android:layout_marginRight="8dp" android:layout_marginTop="12dp"
             app:layout_constraintTop_toBottomOf="@+id/settingsStatusText"/>
+
+
 
     <Button
             android:text="@string/change_status"
@@ -65,7 +67,20 @@
             android:id="@+id/settingChangeStatus" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp" android:layout_marginTop="24dp"
+            android:layout_marginRight="8dp" android:layout_marginTop="12dp"
             app:layout_constraintTop_toBottomOf="@+id/settingChangeImgBtn"/>
+
+    <Button
+            android:text="Show My Location"
+            android:layout_width="245dp"
+            android:layout_height="61dp"
+            android:textColor="#d3d3d3"
+            android:stateListAnimator="@drawable/state_list_animator_z"
+            android:background="@drawable/bt_shape"
+            android:id="@+id/showMyLocation" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp" android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@+id/settingChangeStatus"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
