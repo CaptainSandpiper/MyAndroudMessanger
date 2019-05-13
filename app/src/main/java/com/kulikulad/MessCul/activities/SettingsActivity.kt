@@ -59,7 +59,7 @@ class SettingsActivity : AppCompatActivity() {
                 {
                     var image = dataSnapshot!!.child("image").value.toString();
                     Log.d("lol:", image);
-                   // Picasso.with(applicationSettings)
+
                     Picasso.get()
                         .load(image)
                         .placeholder(R.drawable.profile_img)

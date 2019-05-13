@@ -49,4 +49,16 @@
             app:layout_constraintTop_toBottomOf="@+id/profileStatus" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginLeft="8dp" android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp" android:layout_marginRight="8dp"/>
+    <Button
+            android:text="Show User Location"
+            android:layout_width="311dp"
+            android:layout_height="52dp"
+            android:background="@drawable/bt_shape"
+            android:textColor="#f0f7f4"
+            android:stateListAnimator="@drawable/state_list_animator_z"
+            android:id="@+id/showUserLocation" android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@+id/profileSendMessage" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginLeft="8dp" android:layout_marginStart="8dp" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="8dp" android:layout_marginRight="8dp"
+            app:layout_constraintHorizontal_bias="0.523"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

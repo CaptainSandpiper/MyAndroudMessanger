@@ -34,6 +34,10 @@
                 android:value="@string/google_maps_key"/>
 
         <activity
+                android:name=".activities.UserLocationActivity"
+                android:label="@string/title_activity_user_location">
+        </activity>
+        <activity
                 android:name=".activities.ccccc"
                 android:label="@string/title_activity_ccccc">
         </activity>

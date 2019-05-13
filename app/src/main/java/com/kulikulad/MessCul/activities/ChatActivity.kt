@@ -1,43 +1,65 @@
 package com.kulikulad.MessCul.activities
 
-import androidx.appcompat.app.AppCompatActivity
+import android.Manifest
+import android.app.Activity
+import android.app.DownloadManager
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.kulikulad.MessCul.R
-import com.kulikulad.MessCul.models.FriendlyMessage
-import com.kulikulad.MessCul.models.getDialogId
 import com.firebase.ui.database.FirebaseRecyclerAdapter
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.kulikulad.MessCul.R
+import com.kulikulad.MessCul.models.FriendlyMessage
+import com.kulikulad.MessCul.models.getDialogId
+import com.kulikulad.MessCul.models.getFileName
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu
+import com.oguzdev.circularfloatingactionmenu.library.SubActionButton
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.custom_bar_image.view.*
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu
-import com.oguzdev.circularfloatingactionmenu.library.SubActionButton
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 
 class ChatActivity : AppCompatActivity() {
 
     lateinit var mAdView : AdView;
+    private val CHOOSING_FILE_REQUEST = 1234
+    private val GALLERY_ID: Int = 1;
+
+    private var fileNameSt:String? = null;
+    private var fileUrlSt:String? = null;
 
     var userId:String? = null;
     var mFirebaseDatabaseRef:DatabaseReference? = null;
     var mFirebaseUser: FirebaseUser? = null;
+    var mStorageRef: StorageReference? = null;
 
     var mLinearLayoutManager:LinearLayoutManager? = null;
     var mFirebaseAdapter:FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder>? = null; //back to create MessageViewHolder
+
+    private val STORAGE_PERMISSION_CODE: Int = 1000;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +73,7 @@ class ChatActivity : AppCompatActivity() {
         mAdView.loadAd(adRequest)
         ////delete
 
+        mStorageRef = FirebaseStorage.getInstance().reference;
         mFirebaseUser = FirebaseAuth.getInstance().currentUser;
 
         userId = intent.extras.getString("userId");
@@ -86,6 +109,32 @@ class ChatActivity : AppCompatActivity() {
                 if(friendlyMessage!!.text !=  null)
                 {
                     viewHolder!!.bindView(friendlyMessage)
+                    ////////////////CHECK
+                    if(friendlyMessage!!.type.equals("file"))
+                    {
+                        viewHolder!!.downloadFileButton!!.setOnClickListener{
+
+                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                            {
+                                if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)
+                                {
+                                    fileUrlSt = friendlyMessage!!.text;
+                                    fileNameSt = friendlyMessage!!.textForFile;
+                                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), STORAGE_PERMISSION_CODE)
+                                }
+                                else
+                                {
+                                    startDowloading(friendlyMessage!!.text, friendlyMessage!!.textForFile)
+                                }
+                            }
+                            else
+                            {
+                                startDowloading(friendlyMessage!!.text, friendlyMessage!!.textForFile)
+                            }
+                            //startDowloading(friendlyMessage!!.text)
+                        }
+                    }
+                    //////////////
 
                     var currentUserId = mFirebaseUser!!.uid;
                     var isMe: Boolean  = friendlyMessage!!.id!!.equals(currentUserId);
@@ -96,6 +145,8 @@ class ChatActivity : AppCompatActivity() {
                         viewHolder.profileImageView!!.visibility = View.GONE;
                         viewHolder.messageTextView!!.gravity = (Gravity.CENTER_VERTICAL or Gravity.RIGHT);
                         viewHolder.messengerTextView!!.gravity = (Gravity.CENTER_VERTICAL or Gravity.RIGHT);
+
+
 
                         //get image url for me
                         mFirebaseDatabaseRef!!.child("Users")
@@ -163,12 +214,12 @@ class ChatActivity : AppCompatActivity() {
         messageRecyclerView.adapter = mFirebaseAdapter;
 
         sendButton.setOnClickListener{
-            if(!intent.extras.get("name").toString().equals(""))
+            if(!intent.extras.get("name").toString().equals("") && messageEdt.text.toString().trim() != "")
             {
                 var currentUserName = intent.extras.get("name");
                 var mCurrentUserId = mFirebaseUser!!.uid;
 
-                var friendlyMessage =  FriendlyMessage(mCurrentUserId, messageEdt.text.toString().trim(), currentUserName.toString().trim(), userId.toString().trim())
+                var friendlyMessage =  FriendlyMessage(mCurrentUserId, messageEdt.text.toString().trim(), currentUserName.toString().trim(), userId.toString().trim(), "text")
 
                 mFirebaseDatabaseRef!!.child("messages")
                     .push().setValue(friendlyMessage); // push used because every message must have ow unique id
@@ -178,18 +229,9 @@ class ChatActivity : AppCompatActivity() {
         }
 
 
-//        addMessageImageView.setOnClickListener{
-//            // make menu
-//            var actionMenu = FloatingActionMenu.Builder(this)
-//                .addSubActionView(sendButton)
-//                .addSubActionView(sendButton)
-//                .attachTo(addMessageImageView)
-//                .build()
-//            Toast.makeText(this,"MENUUUUUUU",Toast.LENGTH_LONG).show();
-//        }
+
 
         var itemBuilder:SubActionButton.Builder = SubActionButton.Builder(this);
-        var itemBuilder2:SubActionButton.Builder = SubActionButton.Builder(this);
         //many buttons
 
         var imageView1 = ImageView(this);
@@ -213,12 +255,16 @@ class ChatActivity : AppCompatActivity() {
 
         subActionButton1.setOnClickListener{
             //send pic
-            Toast.makeText(this,"FIIIRSSSSSSSSST",Toast.LENGTH_LONG).show();
+            showChoosingImage();
         }
 
         subActionButton2.setOnClickListener{
             //send pic
-            Toast.makeText(this,"SECOND",Toast.LENGTH_LONG).show();
+            showChoosingFile();
+
+
+            //Toast.makeText(this,"$kek",Toast.LENGTH_LONG).show();
+
         }
 
         subActionButton3.setOnClickListener{
@@ -235,6 +281,11 @@ class ChatActivity : AppCompatActivity() {
         var messengerTextView:TextView? = null;
         var profileImageView: CircleImageView? = null;
         var profileImageViewRight: CircleImageView? = null;
+        var messageImageView: ImageView? = null;
+        var downloadFileButton: Button? = null;
+
+        //experiment
+        var activity:Activity? =null;
 
         fun bindView(friendlyMessage: FriendlyMessage)
         {
@@ -243,9 +294,159 @@ class ChatActivity : AppCompatActivity() {
             profileImageView = itemView.findViewById(R.id.messengerImageView);
             profileImageViewRight = itemView.findViewById(R.id.messengerImageViewRigth);
 
-            messengerTextView!!.text = friendlyMessage.name;
-            messageTextView!!.text  = friendlyMessage.text;
+            if (friendlyMessage.type.equals("text"))
+            {
+                messengerTextView!!.text = friendlyMessage.name;
+                messageTextView!!.text  = friendlyMessage.text;
+            }
+            else if(friendlyMessage.type.equals("pic"))
+            {
+                messageImageView = itemView.findViewById(R.id.messageImageView);
+
+                messengerTextView!!.text = friendlyMessage.name;
+                Picasso.get()
+                    .load(friendlyMessage.text)
+                    .placeholder(R.drawable.happy_woman)
+                    .into(messageImageView);
+
+                messageImageView!!.setOnClickListener{
+
+                }
+            }
+
+            else if(friendlyMessage.type.equals("file"))
+            {
+                downloadFileButton = itemView.findViewById(R.id.downloadFileButton);
+                downloadFileButton!!.visibility = View.VISIBLE;
+                downloadFileButton!!.isClickable = true;
+                downloadFileButton!!.text = "DOWNLOAD: "+friendlyMessage.textForFile;
+
+            }
 
         }
+
+
+
+
     }
+
+    private fun showChoosingImage() {
+        val galleryIntent = Intent();
+        galleryIntent.type = "image/*"
+        galleryIntent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(Intent.createChooser(galleryIntent, "SELELCT_IMAGE"), GALLERY_ID);
+    }
+
+    private fun showChoosingFile()
+    {
+        val fileIntent = Intent();
+        fileIntent.type = "file/*"
+        fileIntent.action = Intent.ACTION_GET_CONTENT;
+        startActivityForResult(Intent.createChooser(fileIntent, "SELELCT_FILE"), CHOOSING_FILE_REQUEST);
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        var image:Uri? = null;
+        var file:Uri? = null;
+
+        var mCurrentUserId = mFirebaseUser!!.uid;
+        var recipientUserId = userId.toString().trim();
+        var chatId = getDialogId(mCurrentUserId, recipientUserId);
+
+        var date = Date();
+        val formatter = SimpleDateFormat("MMMddyyyyHH:mma")
+        val answer: String = formatter.format(date)
+
+        if(requestCode == GALLERY_ID && resultCode == Activity.RESULT_OK)
+        {
+            image = data!!.data;
+
+            var filePath = mStorageRef!!.child("users_chat_pictures")
+                .child(chatId+answer+ ".jpg");
+
+            filePath.putFile(image).addOnSuccessListener() { taskSnapshot ->
+                filePath.downloadUrl.addOnCompleteListener { taskSnapshot ->
+                    if (taskSnapshot.isSuccessful) {
+                        var downloadUrl = taskSnapshot.result.toString()
+
+                        var currentUserName = intent.extras.get("name");
+                        var friendlyMessage =  FriendlyMessage(mCurrentUserId, downloadUrl, currentUserName.toString().trim(), recipientUserId, "pic")
+
+                        mFirebaseDatabaseRef!!.child("messages")
+                            .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+
+                        //Toast.makeText(this,"File is uploaded! ",Toast.LENGTH_LONG).show();
+                    }
+                    else
+                    {
+                        //Toast.makeText(this,"Somethimg goes wrong ",Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+        }
+
+        if(requestCode == CHOOSING_FILE_REQUEST && resultCode == Activity.RESULT_OK)
+        {
+            file = data!!.data;
+            Toast.makeText(this,"${file.toString()} ",Toast.LENGTH_LONG).show();
+
+            var fileName = getFileName(file.toString());
+
+            var filePath = mStorageRef!!.child("users_chat_files")
+                .child(answer + fileName);
+
+            filePath.putFile(file).addOnSuccessListener() { taskSnapshot ->
+                filePath.downloadUrl.addOnCompleteListener { taskSnapshot ->
+                    if (taskSnapshot.isSuccessful) {
+                        var downloadUrl = taskSnapshot.result.toString()
+
+                        var currentUserName = intent.extras.get("name");
+                        var friendlyMessage =  FriendlyMessage(mCurrentUserId, downloadUrl, currentUserName.toString().trim(), recipientUserId, "file", fileName)
+
+                        mFirebaseDatabaseRef!!.child("messages")
+                            .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+                    }
+                    else
+                    {
+                        //Toast.makeText(this,"Somethimg goes wrong ",Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        }
+    }
+
+    private fun startDowloading(fileUrl:String?, fileName:String?)
+    {
+        var url = fileUrl;
+
+        val request = DownloadManager.Request(Uri.parse(url));
+        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI  or DownloadManager.Request.NETWORK_MOBILE);
+        request.setTitle("$fileName");
+        request.setDescription("File is downloading...")
+
+        request.allowScanningByMediaScanner();
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        request.setDestinationInExternalPublicDir("/MyChatApp", "${fileName}");
+
+        val manager = getSystemService(android.content.Context.DOWNLOAD_SERVICE) as DownloadManager
+        manager.enqueue(request);
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        when(requestCode){
+            STORAGE_PERMISSION_CODE ->{
+                if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    startDowloading(fileUrlSt, fileNameSt)
+                }
+                else
+                {
+                    Toast.makeText(this,"Permission denied!!",Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+
 }

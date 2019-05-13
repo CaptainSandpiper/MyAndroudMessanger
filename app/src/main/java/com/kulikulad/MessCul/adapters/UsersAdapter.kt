@@ -1,18 +1,18 @@
 package com.kulikulad.MessCul.adapters
 
 import android.app.AlertDialog
-import com.google.firebase.database.DatabaseReference
-import android.content.Context;
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.firebase.ui.database.FirebaseRecyclerAdapter
+import com.google.firebase.database.DatabaseReference
 import com.kulikulad.MessCul.R
 import com.kulikulad.MessCul.activities.ChatActivity
 import com.kulikulad.MessCul.activities.ProfileActivity
 import com.kulikulad.MessCul.models.Users
-import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -46,6 +46,9 @@ class UsersAdapter(databaseQuery: DatabaseReference, var context: Context): Fire
                     //open user profile
                     var profileIntetn = Intent(context, ProfileActivity::class.java);
                     profileIntetn.putExtra("userId", userId);
+                    profileIntetn.putExtra("name", userName);
+                    profileIntetn.putExtra("status", userStat);
+                    profileIntetn.putExtra("profile", profilePic);
                     context.startActivity(profileIntetn);
                 }
                 else
@@ -78,11 +81,11 @@ class UsersAdapter(databaseQuery: DatabaseReference, var context: Context): Fire
 
             //set string to pass in the intent
             userNameTxt = user.display_name;
-            userStatusTxt = user.user_status;
+            userStatusTxt = user.status;
             userProfilePicLink = user.thumb_image;
 
             userName.text = user.display_name;
-            userStatus.text = user.user_status;
+            userStatus.text = user.status;
             Picasso.get()
                 .load(userProfilePicLink)
                 .placeholder(R.drawable.profile_img)
