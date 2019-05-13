@@ -102,7 +102,7 @@ class ChatActivity : AppCompatActivity() {
         mFirebaseAdapter = object: FirebaseRecyclerAdapter<FriendlyMessage, MessageViewHolder>(FriendlyMessage::class.java,
                                                                                                 R.layout.item_message,
                                                                                                 MessageViewHolder::class.java,
-                                                                                                mFirebaseDatabaseRef!!.child("messages").orderByChild("dialogId").equalTo(dialogId.toString()))
+                                                                                                mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages").orderByChild("dialogId").equalTo(dialogId.toString()))
         {
             override fun populateViewHolder(viewHolder: MessageViewHolder?, friendlyMessage: FriendlyMessage?, position: Int)
             {
@@ -221,7 +221,7 @@ class ChatActivity : AppCompatActivity() {
 
                 var friendlyMessage =  FriendlyMessage(mCurrentUserId, messageEdt.text.toString().trim(), currentUserName.toString().trim(), userId.toString().trim(), "text")
 
-                mFirebaseDatabaseRef!!.child("messages")
+                mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages")
                     .push().setValue(friendlyMessage); // push used because every message must have ow unique id
 
                 messageEdt.setText("");
@@ -369,11 +369,11 @@ class ChatActivity : AppCompatActivity() {
                 filePath.downloadUrl.addOnCompleteListener { taskSnapshot ->
                     if (taskSnapshot.isSuccessful) {
                         var downloadUrl = taskSnapshot.result.toString()
-
                         var currentUserName = intent.extras.get("name");
+                        var dialogId = getDialogId( mFirebaseUser!!.uid, userId.toString());
                         var friendlyMessage =  FriendlyMessage(mCurrentUserId, downloadUrl, currentUserName.toString().trim(), recipientUserId, "pic")
 
-                        mFirebaseDatabaseRef!!.child("messages")
+                        mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages")
                             .push().setValue(friendlyMessage); // push used because every message must have ow unique id
 
                         //Toast.makeText(this,"File is uploaded! ",Toast.LENGTH_LONG).show();
@@ -403,9 +403,11 @@ class ChatActivity : AppCompatActivity() {
                         var downloadUrl = taskSnapshot.result.toString()
 
                         var currentUserName = intent.extras.get("name");
+
+                        var dialogId = getDialogId( mFirebaseUser!!.uid, userId.toString());
                         var friendlyMessage =  FriendlyMessage(mCurrentUserId, downloadUrl, currentUserName.toString().trim(), recipientUserId, "file", fileName)
 
-                        mFirebaseDatabaseRef!!.child("messages")
+                        mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages")
                             .push().setValue(friendlyMessage); // push used because every message must have ow unique id
                     }
                     else
