@@ -38,10 +38,6 @@
                 android:label="@string/title_activity_user_location">
         </activity>
         <activity
-                android:name=".activities.ccccc"
-                android:label="@string/title_activity_ccccc">
-        </activity>
-        <activity
                 android:name=".activities.MyLocationActivity"
                 android:label="@string/title_activity_my_location">
         </activity>

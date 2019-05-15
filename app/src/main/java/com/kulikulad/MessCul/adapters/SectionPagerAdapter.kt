@@ -4,6 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.kulikulad.MessCul.fragments.ChatsFragment
+import com.kulikulad.MessCul.fragments.MeetingsFragment
 import com.kulikulad.MessCul.fragments.UsersFragment
 
 class SectionPagerAdapter(fm: FragmentManager): FragmentPagerAdapter(fm) {
@@ -13,12 +14,14 @@ class SectionPagerAdapter(fm: FragmentManager): FragmentPagerAdapter(fm) {
                     }
                     1 -> {return ChatsFragment()
                     }
+                    2 ->{return MeetingsFragment()
+                    }
                 }
         return null!!;
             }
 
     override fun getCount(): Int {
-                return 2;
+                return 3;
             }
 
     override fun getPageTitle(position: Int): CharSequence? {
@@ -26,6 +29,7 @@ class SectionPagerAdapter(fm: FragmentManager): FragmentPagerAdapter(fm) {
         {
             0 ->{return "USERS"}
             1 ->{return "CHATS"}
+            2 ->{return "MEETINGS"}
         }
         return null!!;
     }

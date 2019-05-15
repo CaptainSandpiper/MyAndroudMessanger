@@ -5,7 +5,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg"
+        android:background="@color/darkBg"
         tools:context=".activities.StatusActivity">
 
     <androidx.cardview.widget.CardView
@@ -26,7 +26,7 @@
 
         <LinearLayout
                 android:orientation="vertical"
-                android:background="@color/colorAccent"
+                android:background="@color/cardview_dark_background"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
             <LinearLayout

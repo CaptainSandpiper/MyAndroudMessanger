@@ -269,6 +269,8 @@ class ChatActivity : AppCompatActivity() {
 
         subActionButton3.setOnClickListener{
             //send pic
+
+//            var mCheck = FirebaseStorage().getReference()
             Toast.makeText(this,"THIRD",Toast.LENGTH_LONG).show();
         }
 
