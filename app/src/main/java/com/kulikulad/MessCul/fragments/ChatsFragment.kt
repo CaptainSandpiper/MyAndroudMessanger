@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.kulikulad.MessCul.R
@@ -37,7 +38,8 @@ class ChatsFragment : Fragment() {
         linearLayoutManager.orientation = RecyclerView.VERTICAL;
         linearLayoutManager.reverseLayout = false;
 
-        mChatsFragment = FirebaseDatabase.getInstance().reference.child("Chats");
+        var mFirebaseUser = FirebaseAuth.getInstance().currentUser;
+         mChatsFragment = FirebaseDatabase.getInstance().reference.child("Users").child("${mFirebaseUser!!.uid}").child("Chats");
 
         chatRecyclerViewId.setHasFixedSize(true);
         chatRecyclerViewId.layoutManager = linearLayoutManager;

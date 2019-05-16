@@ -224,6 +224,20 @@ class ChatActivity : AppCompatActivity() {
                 mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages")
                     .push().setValue(friendlyMessage); // push used because every message must have ow unique id
 
+                //////////CHECK
+                var updateObj = HashMap<String, Any>()
+                updateObj.put("user1_chat_dtatus", "aaa") //big image
+                updateObj.put("user2_chat_status", "bbb") //small image
+                mFirebaseDatabaseRef!!.child("Chats").child(dialogId).updateChildren(updateObj);
+
+                mFirebaseDatabaseRef!!.child("Users").child(mCurrentUserId).child("Chats").child(userId.toString().trim()).child("messages")
+                .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+                mFirebaseDatabaseRef!!.child("Users").child(userId.toString().trim()).child("Chats").child(mCurrentUserId).child("messages")
+                    .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+
+                //////////
+
+
                 messageEdt.setText("");
             }
         }

@@ -3,12 +3,14 @@ package com.kulikulad.MessCul.adapters
 import android.content.Context
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.*
 import com.kulikulad.MessCul.R
 import com.kulikulad.MessCul.models.Chats
+import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 
 class ChatsAdapter (databaseQuery: DatabaseReference, var context: Context): FirebaseRecyclerAdapter<Chats, ChatsAdapter.ViewHolder>(Chats::class.java,
@@ -20,12 +22,17 @@ class ChatsAdapter (databaseQuery: DatabaseReference, var context: Context): Fir
 
         var mFirebaseUser = FirebaseAuth.getInstance().currentUser;
         var chatId = getRef(position).key; // the unique firebase id for this current user!
-        if(chatId!!.contains(mFirebaseUser!!.uid)) {
-            var secUserId = chatId.split(mFirebaseUser!!.uid);
-            viewHolder!!.bindView(model!!, context, secUserId[0]);
-        }
 
-//        viewHolder!!.itemView.setOnClickListener{
+
+
+
+            viewHolder!!.bindView(model!!, context, chatId);
+
+
+
+        viewHolder!!.itemView.setOnClickListener{
+
+            Toast.makeText(context, "${chatId}",Toast.LENGTH_LONG).show();
 //            //create an alert dialog to current users if they want to see a profile or send message
 //            var options = arrayOf("Open Profile", "Send Message");
 //            var builder = AlertDialog.Builder(context)
@@ -59,7 +66,7 @@ class ChatsAdapter (databaseQuery: DatabaseReference, var context: Context): Fir
 //            });
 //
 //            builder.show();
-//        }
+        }
     }
 
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
@@ -70,18 +77,49 @@ class ChatsAdapter (databaseQuery: DatabaseReference, var context: Context): Fir
 
         fun bindView(chat: Chats, context: Context, secUserId:String?)
         {
+
+
             //var mUserRef =
             var userName = itemView.findViewById<TextView>(R.id.userName);
             var userStatus = itemView.findViewById<TextView>(R.id.userStatus);
             var userProfilePic = itemView.findViewById<CircleImageView>(R.id.usersProfile);
+            var isNewMess = itemView.findViewById<TextView>(R.id.messStatus);
+
+
+            var mDatabase = FirebaseDatabase.getInstance().reference
+                .child("Users")
+                .child(secUserId!!);
 
             //set string to pass in the intent
 //            userNameTxt = chat.display_name;
 //            userStatusTxt = user.status;
 //            userProfilePicLink = user.thumb_image;
 //
-            userName.text = secUserId;
-            userStatus.text = "Status " + secUserId;
+            mDatabase!!.addValueEventListener(object: ValueEventListener
+            {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    var displayName = dataSnapshot!!.child("display_name").value;
+                    var image = dataSnapshot!!.child("image").value.toString();
+                    var userStatuss = dataSnapshot!!.child("status").value;
+                    var thumnnail = dataSnapshot!!.child("thumb_image").value;
+
+                    userName.text = displayName.toString();
+                    userStatus.text = userStatuss.toString();
+                    Picasso.get()
+                        .load(image)
+                        .placeholder(R.drawable.profile_img)
+                        .into(userProfilePic)
+                }
+
+                override fun onCancelled(p0: DatabaseError) {
+
+                }
+            })
+
+//            isNewMess.visibility = View.VISIBLE;
+//            isNewMess.text = "AAAAAAAAa"
+//            userName.text = secUserId;
+//            userStatus.text = "Status " + secUserId;
 //            Picasso.get()
 //                .load(userProfilePicLink)
 //                .placeholder(R.drawable.profile_img)
