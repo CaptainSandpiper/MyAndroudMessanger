@@ -46,24 +46,22 @@
                         android:padding="5dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
-
             <TextView
-                    android:text="AAAAAAAAAAAAA"
+                    android:text="!!!"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/messStatus"
-                    android:textColor="#00DA0000"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginRight="8dp"
-                    android:textSize="18sp"
-                    android:visibility="invisible"
-                    android:layout_alignParentEnd="true" android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"/>
-                   "/>
+                    android:id="@+id/newMess"
+                    android:visibility="gone"
+                    android:textColor="@color/fuckingRed"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="23dp"
+                    android:layout_marginEnd="23dp"
+                    android:layout_marginTop="26dp"
+                    android:layout_alignParentTop="true" />
 
-    </RelativeLayout>
+
+        </RelativeLayout>
     </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

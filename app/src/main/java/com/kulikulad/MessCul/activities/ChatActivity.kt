@@ -226,8 +226,9 @@ class ChatActivity : AppCompatActivity() {
 
                 //////////CHECK
                 var updateObj = HashMap<String, Any>()
-                updateObj.put("user1_chat_dtatus", "aaa") //big image
-                updateObj.put("user2_chat_status", "bbb") //small image
+                updateObj.put("${userId.toString().trim()}", "new")
+                updateObj.put("${mCurrentUserId}", "old")
+
                 mFirebaseDatabaseRef!!.child("Chats").child(dialogId).updateChildren(updateObj);
 
                 mFirebaseDatabaseRef!!.child("Users").child(mCurrentUserId).child("Chats").child(userId.toString().trim()).child("messages")
@@ -236,8 +237,6 @@ class ChatActivity : AppCompatActivity() {
                     .push().setValue(friendlyMessage); // push used because every message must have ow unique id
 
                 //////////
-
-
                 messageEdt.setText("");
             }
         }
@@ -393,6 +392,20 @@ class ChatActivity : AppCompatActivity() {
                             .push().setValue(friendlyMessage); // push used because every message must have ow unique id
 
                         //Toast.makeText(this,"File is uploaded! ",Toast.LENGTH_LONG).show();
+
+                        //////////CHECK
+                        var updateObj = HashMap<String, Any>()
+                        updateObj.put("${userId.toString().trim()}", "new")
+                        updateObj.put("${mCurrentUserId}", "old")
+
+                        mFirebaseDatabaseRef!!.child("Chats").child(dialogId).updateChildren(updateObj);
+
+                        mFirebaseDatabaseRef!!.child("Users").child(mCurrentUserId).child("Chats").child(userId.toString().trim()).child("messages")
+                            .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+                        mFirebaseDatabaseRef!!.child("Users").child(userId.toString().trim()).child("Chats").child(mCurrentUserId).child("messages")
+                            .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+
+                        //////////
                     }
                     else
                     {
@@ -425,6 +438,21 @@ class ChatActivity : AppCompatActivity() {
 
                         mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages")
                             .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+
+
+                        //////////CHECK
+                        var updateObj = HashMap<String, Any>()
+                        updateObj.put("${userId.toString().trim()}", "new")
+                        updateObj.put("${mCurrentUserId}", "old")
+
+                        mFirebaseDatabaseRef!!.child("Chats").child(dialogId).updateChildren(updateObj);
+
+                        mFirebaseDatabaseRef!!.child("Users").child(mCurrentUserId).child("Chats").child(userId.toString().trim()).child("messages")
+                            .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+                        mFirebaseDatabaseRef!!.child("Users").child(userId.toString().trim()).child("Chats").child(mCurrentUserId).child("messages")
+                            .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+
+                        //////////
                     }
                     else
                     {
@@ -465,6 +493,20 @@ class ChatActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        var dialogId = getDialogId( mFirebaseUser!!.uid, userId.toString());
+
+        var updateObj = HashMap<String, Any>()
+        updateObj.put("${mFirebaseUser!!.uid}", "old")
+
+        mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).updateChildren(updateObj);
+
+        //Toast.makeText(this, "AAAAAAAAAAAAA", Toast.LENGTH_LONG).show();
     }
 
 }

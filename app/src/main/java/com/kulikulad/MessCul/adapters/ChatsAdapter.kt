@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.kulikulad.MessCul.R
 import com.kulikulad.MessCul.models.Chats
+import com.kulikulad.MessCul.models.getDialogId
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -21,14 +22,11 @@ class ChatsAdapter (databaseQuery: DatabaseReference, var context: Context): Fir
     override fun populateViewHolder(viewHolder: ChatsAdapter.ViewHolder?, model: Chats?, position: Int) {
 
         var mFirebaseUser = FirebaseAuth.getInstance().currentUser;
-        var chatId = getRef(position).key; // the unique firebase id for this current user!
+        var secUserId = getRef(position).key; // the unique firebase id for this current user!
 
+        var chatId = getDialogId(mFirebaseUser!!.uid, secUserId);
 
-
-
-            viewHolder!!.bindView(model!!, context, chatId);
-
-
+        viewHolder!!.bindView(model!!, context,mFirebaseUser!!.uid , secUserId!!, chatId!!);
 
         viewHolder!!.itemView.setOnClickListener{
 
@@ -75,7 +73,7 @@ class ChatsAdapter (databaseQuery: DatabaseReference, var context: Context): Fir
         var userStatusTxt: String? = null;
         var userProfilePicLink:String? = null;
 
-        fun bindView(chat: Chats, context: Context, secUserId:String?)
+        fun bindView(chat: Chats, context: Context,firUserID:String, secUserId:String, chatId:String)
         {
 
 
@@ -83,7 +81,29 @@ class ChatsAdapter (databaseQuery: DatabaseReference, var context: Context): Fir
             var userName = itemView.findViewById<TextView>(R.id.userName);
             var userStatus = itemView.findViewById<TextView>(R.id.userStatus);
             var userProfilePic = itemView.findViewById<CircleImageView>(R.id.usersProfile);
-            var isNewMess = itemView.findViewById<TextView>(R.id.messStatus);
+            var isNewMess = itemView.findViewById<TextView>(R.id.newMess);
+
+            var mChatStatus = FirebaseDatabase.getInstance().reference
+                .child("Chats")
+                .child(chatId);
+
+            mChatStatus.addValueEventListener(object: ValueEventListener
+            {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                    if(dataSnapshot.child("${firUserID}").value != null) {
+                        if (dataSnapshot.child("${firUserID}").value!!.equals("new")) {
+                            isNewMess.visibility = View.VISIBLE;
+                        } else if (dataSnapshot.child("${firUserID}").value!!.equals("old")) {
+                            isNewMess.visibility = View.GONE;
+                        }
+                    }
+                }
+
+                override fun onCancelled(p0: DatabaseError) {
+                }
+            })
+
 
 
             var mDatabase = FirebaseDatabase.getInstance().reference
@@ -116,14 +136,6 @@ class ChatsAdapter (databaseQuery: DatabaseReference, var context: Context): Fir
                 }
             })
 
-//            isNewMess.visibility = View.VISIBLE;
-//            isNewMess.text = "AAAAAAAAa"
-//            userName.text = secUserId;
-//            userStatus.text = "Status " + secUserId;
-//            Picasso.get()
-//                .load(userProfilePicLink)
-//                .placeholder(R.drawable.profile_img)
-//                .into(userProfilePic)
         }
 
     }
