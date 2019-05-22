@@ -68,7 +68,7 @@ class ChatActivity : AppCompatActivity() {
         ////banner
         MobileAds.initialize(this,"ca-app-pub-3940256099942544~3347511713");
 
-        mAdView = findViewById(R.id.adView)
+        mAdView = this.findViewById(R.id.adView)
         val adRequest = AdRequest.Builder().build()
         mAdView.loadAd(adRequest)
         ////delete
@@ -282,7 +282,7 @@ class ChatActivity : AppCompatActivity() {
 
         subActionButton3.setOnClickListener{
             //send pic
-
+                startActivity(Intent(this, SetEventActivity::class.java));
 //            var mCheck = FirebaseStorage().getReference()
             Toast.makeText(this,"THIRD",Toast.LENGTH_LONG).show();
         }

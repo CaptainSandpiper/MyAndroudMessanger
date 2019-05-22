@@ -9,10 +9,25 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="logout">Logout</string>
     <string name="settings">Settings</string>
+    <string name="meetings">Meetings</string>
     <string name="change_pic">Change Picture</string>
     <string name="change_status">Change Status</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="title_activity_my_location">Map</string>
-    <string name="title_activity_ccccc">Map</string>
     <string name="title_activity_user_location">Map</string>
+    <string name="set_event_time">Set Event Time</string>
+    <string name="set_event_date">Set Event Date</string>
+    <string name="set_event_location">Set Event Location</string>
+
+    <string name="main_drawer_open">Open navigation drawer</string>
+    <string name="main_drawer_close">Close navigation drawer</string>
+    <string name="main_action_today">Jump to Today</string>
+    <string name="main_action_regenerate">Regenerate events</string>
+
+    <string name="config_range">Range</string>
+    <string name="config_range_day">Day</string>
+    <string name="config_range_week">Week</string>
+    <string name="title_activity_event_place">Map</string>
+
+
 </resources>

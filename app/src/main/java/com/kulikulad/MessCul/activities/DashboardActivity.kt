@@ -63,6 +63,10 @@ class DashboardActivity : AppCompatActivity() {
                 startActivity(Intent(this, SettingsActivity::class.java));
                 //finish();
             }
+            if(item.itemId == R.id.meetingsId)
+            {
+                startActivity(Intent(this, EventsActivity::class.java));
+            }
         }
 
         return true;
