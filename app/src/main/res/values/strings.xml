@@ -28,6 +28,7 @@
     <string name="config_range_day">Day</string>
     <string name="config_range_week">Week</string>
     <string name="title_activity_event_place">Map</string>
+    <string name="SetEventMeeting">SET MEETING</string>
 
 
 </resources>

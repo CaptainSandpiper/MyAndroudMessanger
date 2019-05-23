@@ -282,9 +282,14 @@ class ChatActivity : AppCompatActivity() {
 
         subActionButton3.setOnClickListener{
             //send pic
-                startActivity(Intent(this, SetEventActivity::class.java));
+
+            var currentUserName = intent.extras.get("name");
+            var intent = Intent(this, SetEventActivity::class.java);
+            intent.putExtra("mCurrentUserId", mFirebaseUser!!.uid);
+            intent.putExtra("recipientUserId", userId)
+            intent.putExtra("currentUserName", currentUserName.toString().trim())
+            startActivity(intent);
 //            var mCheck = FirebaseStorage().getReference()
-            Toast.makeText(this,"THIRD",Toast.LENGTH_LONG).show();
         }
 
 
