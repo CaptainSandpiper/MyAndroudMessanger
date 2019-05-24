@@ -7,8 +7,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.jonaswanke.calendar.utils.dayOfWeek
 import com.kulikulad.MessCul.R
 import com.kulikulad.MessCul.models.FriendlyMessage
 import com.kulikulad.MessCul.models.getDialogId
@@ -22,6 +24,14 @@ class SetEventActivity : AppCompatActivity() {
     private val random = Random();
 
     var mFirebaseDatabaseRef: DatabaseReference? = null;
+    var mFirebaseUser: FirebaseUser? = null;
+
+    var yearSel: Int?= null;
+    var monthSel: Int? = null;
+    var daySel: Int? = null;
+    var hourSel: Int? = null;
+    var minutesSel:Int? = null;
+    var dayOfWeekSel:Int? = null;
 
     var meetingDate: Date? = null;
     var meetingTime: Date? = null;
@@ -63,16 +73,20 @@ class SetEventActivity : AppCompatActivity() {
 
             val timePicker = TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { view, hourOfDay, minute ->
                 val selectedTime = Calendar.getInstance();
+
+                hourSel = hourOfDay;
+                minutesSel = minute;
+
                 selectedTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 selectedTime.set(Calendar.MINUTE, minute);
 
-                Toast.makeText(this,"time: "+timeFormat.format(selectedTime.time), Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"$hourSel:$minutesSel", Toast.LENGTH_LONG).show();
                 /////////////////////////////////
                  meetingTime = selectedTime.time;
 
                 setTimeButton.text = timeFormat.format(selectedTime.time);
                 now.time = selectedTime.time;
-            },  now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), false );
+            },  now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), true );
 
             timePicker.show();
         }
@@ -82,16 +96,22 @@ class SetEventActivity : AppCompatActivity() {
             val datePicker = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
 
                 val selectedDate = Calendar.getInstance();
+                yearSel = year;
+                monthSel = month;
+                daySel = dayOfMonth;
+
+
                 selectedDate.set(Calendar.YEAR,year);
                 selectedDate.set(Calendar.MONTH, month);
                 selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 val date = formate.format(selectedDate.time)
 
                 ///////////////////////////////
-                meetingDate = selectedDate.time;
+                meetingDate = selectedDate.time
+                dayOfWeekSel = selectedDate.dayOfWeek;
 
                 setDateButton.text = date;
-                Toast.makeText(this, date, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "$dayOfWeekSel", Toast.LENGTH_LONG).show();
             },
                 now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH))
 
@@ -118,8 +138,12 @@ class SetEventActivity : AppCompatActivity() {
                 var friendlyMessage = FriendlyMessage(currentUserId!!, meetingId!!, currentUserName.toString().trim(), recipientUserId, "meeting");
 
                 var meetingObj = HashMap<String, Any>();
-                meetingObj.put("meetingDate", meetingDate.toString());
-                meetingObj.put("meetingTime", meetingTime.toString());
+                meetingObj.put("meetingYear", yearSel.toString());
+                meetingObj.put("meetingMonth", monthSel.toString());
+                meetingObj.put("meetingDay", daySel.toString());
+                meetingObj.put("meetingHour", hourSel.toString());
+                meetingObj.put("meetingMinute", minutesSel.toString());
+                meetingObj.put("meetingDayOfWeek", dayOfWeekSel.toString());
                 meetingObj.put("meetingLat",meetingLat.toString());
                 meetingObj.put("meetingLng",meetingLng.toString());
 
@@ -131,6 +155,11 @@ class SetEventActivity : AppCompatActivity() {
 
                 mFirebaseDatabaseRef!!.child("Users").child(currentUserId!!).child("Chats").child(recipientUserId.toString().trim()).child("messages")
                     .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+
+
+                ////////////////
+                mFirebaseDatabaseRef!!.child("Users").child(currentUserId!!).child("Meetings").child(meetingId).updateChildren(meetingObj)
+                mFirebaseDatabaseRef!!.child("Users").child(recipientUserId!!).child("Meetings").child(meetingId).updateChildren(meetingObj)
 
 
 

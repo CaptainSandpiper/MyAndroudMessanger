@@ -22,6 +22,11 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
@@ -42,7 +47,7 @@ import java.util.*
 
 
 
-class ChatActivity : AppCompatActivity() {
+class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
 
     lateinit var mAdView : AdView;
     private val CHOOSING_FILE_REQUEST = 1234
@@ -134,6 +139,22 @@ class ChatActivity : AppCompatActivity() {
                             //startDowloading(friendlyMessage!!.text)
                         }
                     }
+                    //////////////////////////////////////////////////////
+                    else if(friendlyMessage!!.type.equals("meeting"))
+                    {
+                        viewHolder!!.showLocationMeetingButton!!.setOnClickListener{
+
+                            //how to get context
+                            startActivity(Intent(this@ChatActivity, MyLocationActivity::class.java))
+                        }
+                        viewHolder!!.acceptMeetingButton!!.setOnClickListener{
+
+                        }
+                        viewHolder!!.declineMeetingButton!!.setOnClickListener{
+
+                        }
+
+                    }
                     //////////////
 
                     var currentUserId = mFirebaseUser!!.uid;
@@ -152,24 +173,24 @@ class ChatActivity : AppCompatActivity() {
                         mFirebaseDatabaseRef!!.child("Users")
                             .child(currentUserId)
                             .addValueEventListener(object:ValueEventListener{
-                                override fun onDataChange(data: DataSnapshot)
-                                {
-                                    var imageUrl = data!!.child("thumb_image").value.toString();
-                                    var displayName = data!!.child("display_name").value.toString();
+                                    override fun onDataChange(data: DataSnapshot)
+                                    {
+                                        var imageUrl = data!!.child("thumb_image").value.toString();
+                                        var displayName = data!!.child("display_name").value.toString();
 
 //                                    viewHolder.messengerTextView!!.text = displayName.toString();
-                                    viewHolder.messengerTextView!!.text = "I wrote...";
+                                        viewHolder.messengerTextView!!.text = "I wrote...";
 
-                                    Picasso.get()
-                                        .load(imageUrl)
-                                        .placeholder(R.drawable.profile_img)
-                                        .into(viewHolder.profileImageViewRight);
-                                }
+                                        Picasso.get()
+                                            .load(imageUrl)
+                                            .placeholder(R.drawable.profile_img)
+                                            .into(viewHolder.profileImageViewRight);
+                                    }
 
-                                override fun onCancelled(p0: DatabaseError)
-                                {
+                                    override fun onCancelled(p0: DatabaseError)
+                                    {
 
-                                }
+                                    }
                             })
                     }
                     else
@@ -303,6 +324,9 @@ class ChatActivity : AppCompatActivity() {
         var profileImageViewRight: CircleImageView? = null;
         var messageImageView: ImageView? = null;
         var downloadFileButton: Button? = null;
+        var showLocationMeetingButton: Button? = null;
+        var acceptMeetingButton: Button? = null;
+        var declineMeetingButton: Button? = null;
 
         //experiment
         var activity:Activity? =null;
@@ -313,6 +337,11 @@ class ChatActivity : AppCompatActivity() {
             messengerTextView = itemView.findViewById(R.id.messengerTextView);
             profileImageView = itemView.findViewById(R.id.messengerImageView);
             profileImageViewRight = itemView.findViewById(R.id.messengerImageViewRigth);
+            showLocationMeetingButton = itemView.findViewById(R.id.showLocationMeeting);
+            acceptMeetingButton = itemView.findViewById(R.id.acceptMeeting);
+            declineMeetingButton = itemView.findViewById(R.id.declineMeeting);
+
+
 
             if (friendlyMessage.type.equals("text"))
             {
@@ -340,6 +369,14 @@ class ChatActivity : AppCompatActivity() {
                 downloadFileButton!!.visibility = View.VISIBLE;
                 downloadFileButton!!.isClickable = true;
                 downloadFileButton!!.text = "DOWNLOAD: "+friendlyMessage.textForFile;
+
+            }
+
+            else if(friendlyMessage.type.equals("meeting"))
+            {
+                showLocationMeetingButton!!.visibility = View.VISIBLE;
+                acceptMeetingButton!!.visibility = View.VISIBLE;
+                declineMeetingButton!!.visibility =View.VISIBLE;
 
             }
 
@@ -513,5 +550,14 @@ class ChatActivity : AppCompatActivity() {
 
         //Toast.makeText(this, "AAAAAAAAAAAAA", Toast.LENGTH_LONG).show();
     }
+
+
+
+    override fun onMapReady(map: GoogleMap?) {
+        map!!.addMarker(MarkerOptions().position(LatLng(0.0,0.0)).title("Marker in Sydney"))
+        map!!.moveCamera(CameraUpdateFactory.newLatLng(LatLng(0.0,0.0)))
+
+    }
+
 
 }
