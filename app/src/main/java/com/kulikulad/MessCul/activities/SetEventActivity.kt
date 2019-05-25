@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.jonaswanke.calendar.utils.dayOfWeek
+import com.jonaswanke.calendar.utils.toWeek
 import com.kulikulad.MessCul.R
 import com.kulikulad.MessCul.models.FriendlyMessage
 import com.kulikulad.MessCul.models.getDialogId
@@ -32,6 +33,7 @@ class SetEventActivity : AppCompatActivity() {
     var hourSel: Int? = null;
     var minutesSel:Int? = null;
     var dayOfWeekSel:Int? = null;
+    var weekOfYear:Int? = null;
 
     var meetingDate: Date? = null;
     var meetingTime: Date? = null;
@@ -109,6 +111,7 @@ class SetEventActivity : AppCompatActivity() {
                 ///////////////////////////////
                 meetingDate = selectedDate.time
                 dayOfWeekSel = selectedDate.dayOfWeek;
+                weekOfYear = selectedDate.toWeek().week;
 
                 setDateButton.text = date;
                 Toast.makeText(this, "$dayOfWeekSel", Toast.LENGTH_LONG).show();
@@ -126,7 +129,7 @@ class SetEventActivity : AppCompatActivity() {
         }
 
         setEventMeetingButton.setOnClickListener{
-            if(meetingDate != null && meetingTime != null && meetingLat != null && meetingLng != null)
+            if(meetingDate != null && meetingTime != null && meetingLat != null && meetingLng != null && !subjectMeet.text.toString().trim().equals("") && !descriptionMeet.text.toString().trim().equals(""))
             {
                 Toast.makeText(this,"good", Toast.LENGTH_LONG).show();
 
@@ -135,9 +138,11 @@ class SetEventActivity : AppCompatActivity() {
                 meetingId += meetingDate;
                 meetingId += meetingTime;
 
-                var friendlyMessage = FriendlyMessage(currentUserId!!, meetingId!!, currentUserName.toString().trim(), recipientUserId, "meeting");
+                var friendlyMessage = FriendlyMessage(currentUserId!!, meetingId!!, currentUserName.toString().trim(), recipientUserId, "meeting", "not accepted");
 
                 var meetingObj = HashMap<String, Any>();
+                meetingObj.put("subjectMeet", subjectMeet.text.toString().trim());
+                meetingObj.put("descriptionMeet", descriptionMeet.text.toString().trim());
                 meetingObj.put("meetingYear", yearSel.toString());
                 meetingObj.put("meetingMonth", monthSel.toString());
                 meetingObj.put("meetingDay", daySel.toString());
@@ -146,12 +151,17 @@ class SetEventActivity : AppCompatActivity() {
                 meetingObj.put("meetingDayOfWeek", dayOfWeekSel.toString());
                 meetingObj.put("meetingLat",meetingLat.toString());
                 meetingObj.put("meetingLng",meetingLng.toString());
+                meetingObj.put("meetingWeekOfYear", weekOfYear.toString());
 
                 mFirebaseDatabaseRef!!.child("Meetings").child(meetingId)
                     .updateChildren(meetingObj);
 
-                mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages")
-                    .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+//                mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages")
+//                    .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+                var ref = mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages");
+                val messId = ref.push().key;
+                friendlyMessage.messId = messId;
+                ref.child(messId!!).setValue(friendlyMessage);
 
                 mFirebaseDatabaseRef!!.child("Users").child(currentUserId!!).child("Chats").child(recipientUserId.toString().trim()).child("messages")
                     .push().setValue(friendlyMessage); // push used because every message must have ow unique id

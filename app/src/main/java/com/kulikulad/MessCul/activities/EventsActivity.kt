@@ -1,6 +1,7 @@
 package com.kulikulad.MessCul.activities
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -41,6 +42,8 @@ class EventsActivity : AppCompatActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot)
             {
                 loadMeetings(dataSnapshot);
+                //populate(meetingList!!);
+                Toast.makeText(this@EventsActivity, "AAAA",Toast.LENGTH_LONG).show()
             }
 
             override fun onCancelled(p0: DatabaseError)
@@ -50,18 +53,30 @@ class EventsActivity : AppCompatActivity() {
         })
 
 
-        Toast.makeText(this,"",Toast.LENGTH_LONG).show();
+        Toast.makeText(this,"OnCreate",Toast.LENGTH_LONG).show();
 
-        calendar.eventRequestCallback = {
-            populate(meetingList!!)
-        }
+//        //populate( meetingList!!)
+//        calendar.eventRequestCallback = {
+//
+//            fun selector(WOY: EventInfo): Int = WOY.weekOfYear!!.toInt();
+//
+//            meetingList!!.sortBy({selector(it)})
+//
+//            populate( meetingList!!)
+//            //populate(it)
+//            Toast.makeText(this, "${it.week}",Toast.LENGTH_LONG).show()
+//        }
+
 
 
 
 
         calendar.onEventClickListener = { event ->
             // EventWithPlace was clicked
-            Toast.makeText(this, "${event.title} clicked", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "${event.start} clicked", Toast.LENGTH_LONG).show()
+
+            Log.d("start:", event.start.toString());
+            Log.d("end:", event.end.toString());
         }
         calendar.onEventLongClickListener = { event ->
             // EventWithPlace was long clicked
@@ -75,6 +90,12 @@ class EventsActivity : AppCompatActivity() {
             true
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        Toast.makeText(this,"OnResume",Toast.LENGTH_LONG).show();
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -168,11 +189,20 @@ class EventsActivity : AppCompatActivity() {
 //
 //        calendar.setEventsForWeek(newWeek, events)
 //    }
-    fun populate(meetingsInfoList:MutableList<EventInfo>)
-    {
 
+
+    fun populate(meetingsInfoList:MutableList<EventInfo>) {
+
+        var oldWeek:Week? = null;
         var newWeek:Week? = null;
-        val events = mutableListOf<Event>()
+        var times: Int = 0;
+        var count = meetingsInfoList.count();
+        var events = mutableListOf<Event>()
+
+
+        fun selector(WOY: EventInfo): Int = WOY.weekOfYear!!.toInt();
+
+        meetingsInfoList.sortBy({selector(it)})
 
         for(info in meetingsInfoList)
         {
@@ -183,6 +213,9 @@ class EventsActivity : AppCompatActivity() {
             var hour =info.hour!!.toInt();
             var minutes =info.minute!!.toInt();
             var dayOfWeek = info.dayOfWeek!!.toInt();
+            var weekOfYear = info.weekOfYear!!.toInt();
+            var meetingSubj = info.meetingSubj;
+            var meetingDescr = info.meetingDesr;
 
             val selectedTime = Calendar.getInstance();
             selectedTime.set(Calendar.YEAR,year);
@@ -190,55 +223,65 @@ class EventsActivity : AppCompatActivity() {
             selectedTime.set(Calendar.DAY_OF_MONTH, day)
             selectedTime.set(Calendar.HOUR_OF_DAY, hour);
             selectedTime.set(Calendar.MINUTE, minutes);
-
-            var newWeek = Week(selectedTime);
+            selectedTime.set(Calendar.WEEK_OF_YEAR, weekOfYear)
 
             val id = nextId++.toString()
-            val start = newWeek.start + (dayOfWeek-1)*24*60*60*1000 + hour*60*60*1000 +minutes*60*1000 // DateUtils.WEEK_IN_MILLIS
-            val end = start + 60*60*1000 //% (DateUtils.DAY_IN_MILLIS / 8)
 
-            events.add(BaseEvent(id, id, (random.nextInt() or 0xFF000000.toInt()) and 0x00202020.inv(),start, end ))
-            calendar.setEventsForWeek(newWeek!!, events)
-            //var dayS = Day(selectedTime);
+            if(times == 0) {
+
+                newWeek = Week(selectedTime);
+                oldWeek = newWeek;
+            }
+            else
+            {
+                if(oldWeek!!.week != weekOfYear)
+                {
+                    calendar.setEventsForWeek(newWeek!!, events)
+                    events.clear();
+                    newWeek = Week(selectedTime)
+                    oldWeek = newWeek;
+
+                }
+            }
+
+
+            var start:Long? = null;
+            var end: Long? = null;
+            start = newWeek!!.start + (dayOfWeek - 1) * 24 * 60 * 60 * 1000 + hour * 60 * 60 * 1000 + minutes * 60 * 1000 // DateUtils.WEEK_IN_MILLIS
+            end = start + 60 * 60 * 1000 //% (DateUtils.DAY_IN_MILLIS / 8)
+            events.add(BaseEvent(meetingSubj!!, meetingDescr, (random.nextInt() or 0xFF000000.toInt()) and 0x00202020.inv(),start!!, end!! ))
+
+
+            if(times == count-1)
+            {
+                calendar.setEventsForWeek(newWeek!!, events)
+            }
+
+            times++;
+
         }
 
-                //calendar.setEventsForWeek(newWeek!!, events)
+
     }
 
-//    fun loadMeetings(dataSnapshot:DataSnapshot)
-//    {
-//        val meetings = dataSnapshot.children.iterator();
+//    private fun populate(week: Week, force: Boolean = false) {
+//        if (!force && calendar.cachedEvents.contains(week))
+//            return
 //
-//        if(meetings.hasNext())
-//        {
-//            meetingList!!.clear();
-//
-//            val listIndex = meetings.next();
-//            val itemsIterator = listIndex.children.iterator()
-//
-//            while(itemsIterator.hasNext())
-//            {
-//                val currentItem = itemsIterator.next();
-//
-//                val map = currentItem.getValue() as HashMap<String, Any>
-//
-//                var year = map.get("meetingYear") as String;
-//                var month = map.get("meetingMonth") as String;
-//                var day = map.get("meetingday")as String;
-//                var hour = map.get("meetingHour")as String;
-//                var minute = map.get("meetingMinute")as String;
-//                var meetLat = map.get("meetingLat");
-//                var meetLng = map.get("meetingLng");
-//                var dayOfWeek = map.get("meetingDayOfWeek")as String;
-//
-//                var meetingInfo = EventInfo(year, month, day,hour, minute, meetLat.toString().toDouble(), meetLng.toString().toDouble(), dayOfWeek)
-//
-//                meetingList!!.add(meetingInfo);
-//            }
-//
+//        val events = mutableListOf<Event>()
+//        for (i in 0..2) {
+//            val id = nextId++.toString()
+//            val start = week.start + abs(random.nextLong()) % DateUtils.WEEK_IN_MILLIS
+//            events.add(BaseEvent(
+//                id,
+//                id,
+//                (random.nextInt() or 0xFF000000.toInt()) and 0x00202020.inv(),
+//                start,
+//                start + abs(random.nextLong()) % (DateUtils.DAY_IN_MILLIS / 8)))
 //        }
-//
+//        calendar.setEventsForWeek(week, events)
 //    }
+
 
     fun loadMeetings(dataSnapshot:DataSnapshot)
     {
@@ -256,14 +299,17 @@ class EventsActivity : AppCompatActivity() {
                 var meetLat = map.get("meetingLat");
                 var meetLng = map.get("meetingLng");
                 var dayOfWeek = map.get("meetingDayOfWeek")as String;
+                var weeOfYear = map.get("meetingWeekOfYear") as String;
+                var meetingSubj = map.get("subjectMeet") as String;
+                var meetingDescr = map.get("descriptionMeet") as String;
 
-                var meetingInfo = EventInfo(year, month, day,hour, minute, meetLat.toString().toDouble(), meetLng.toString().toDouble(), dayOfWeek)
+                var meetingInfo = EventInfo(year, month, day,hour, minute, meetLat.toString().toDouble(), meetLng.toString().toDouble(), dayOfWeek, weeOfYear, meetingSubj, meetingDescr)
 
                 meetingList!!.add(meetingInfo);
 
         }
 
-        //populate(meetingList!!);
+        populate(meetingList!!);
     }
 
 

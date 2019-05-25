@@ -111,6 +111,9 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
         {
             override fun populateViewHolder(viewHolder: MessageViewHolder?, friendlyMessage: FriendlyMessage?, position: Int)
             {
+                var currentUserId = mFirebaseUser!!.uid;
+                var isMe: Boolean  = friendlyMessage!!.id!!.equals(currentUserId)
+
                 if(friendlyMessage!!.text !=  null)
                 {
                     viewHolder!!.bindView(friendlyMessage)
@@ -142,23 +145,112 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
                     //////////////////////////////////////////////////////
                     else if(friendlyMessage!!.type.equals("meeting"))
                     {
-                        viewHolder!!.showLocationMeetingButton!!.setOnClickListener{
+
+                        var meetingLat: Double? = null;
+                        var meetingLng: Double? = null;
+                        var markerText: String? = null;
+
+                        mFirebaseDatabaseRef!!.child("Meetings").child(friendlyMessage.text.toString())
+                            .addListenerForSingleValueEvent(object: ValueEventListener{
+                                override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                                    var year = dataSnapshot!!.child("meetingYear").value.toString()
+                                    var month = dataSnapshot!!.child("meetingMonth").value.toString()
+                                    var day = dataSnapshot!!.child("meetingDay").value.toString()
+
+                                    var hour = dataSnapshot!!.child("meetingHour").value.toString()
+                                    var minutes = dataSnapshot!!.child("meetingMinute").value.toString()
+                                    var subj = dataSnapshot!!.child("subjectMeet").value.toString()
+                                    var descr = dataSnapshot!!.child("descriptionMeet").value.toString()
+
+                                    meetingLat = dataSnapshot!!.child("meetingLat").value.toString().toDouble();
+                                    meetingLng = dataSnapshot!!.child("meetingLng").value.toString().toDouble();
+
+
+                                    markerText = subj;
+                                    viewHolder.messageTextView!!.gravity = Gravity.LEFT;
+                                    viewHolder.messageTextView!!.text = friendlyMessage!!.textForFile + " : Let's meet: "+ "$year:$month:$day "+ " $hour:$minutes" +"\nSubject: $subj \nDescription: $descr";
+
+
+                                }
+
+                                override fun onCancelled(p0: DatabaseError) {
+                                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                                }
+
+                            })
+
+                        viewHolder!!.showLocationMeetingButton!!.setOnClickListener {
 
                             //how to get context
-                            startActivity(Intent(this@ChatActivity, MyLocationActivity::class.java))
+                            var intent = Intent(this@ChatActivity, MeetingPlaceActivity::class.java)
+                            intent.putExtra("meetingLat", meetingLat);
+                            intent.putExtra("meetingLng", meetingLng);
+                            intent.putExtra("markerText", markerText);
+                            startActivity(intent)
                         }
-                        viewHolder!!.acceptMeetingButton!!.setOnClickListener{
 
+
+                        if(!isMe) {
+
+
+                            if (friendlyMessage!!.textForFile.equals("not accepted")) {
+                                viewHolder!!.acceptMeetingButton!!.setOnClickListener {
+
+                                    var updateObj = HashMap<String, Any>()
+                                    updateObj.put("textForFile", "accepted")
+
+                                    mFirebaseDatabaseRef!!.child("Chats").child(friendlyMessage.dialogId.toString())
+                                        .child("messages").child(friendlyMessage.messId.toString())
+                                        .updateChildren(updateObj);
+
+                                }
+                                viewHolder!!.declineMeetingButton!!.setOnClickListener {
+
+                                    var updateObj = HashMap<String, Any>()
+                                    updateObj.put("textForFile", "declined")
+
+                                    mFirebaseDatabaseRef!!.child("Chats").child(friendlyMessage.dialogId.toString())
+                                        .child("messages").child(friendlyMessage.messId.toString())
+                                        .updateChildren(updateObj);
+
+
+                                    mFirebaseDatabaseRef!!.child("Users").child(mFirebaseUser!!.uid).child("Meetings").child(friendlyMessage!!.text.toString()).removeValue()
+                                    mFirebaseDatabaseRef!!.child("Users").child(userId.toString()).child("Meetings").child(friendlyMessage!!.text.toString()).removeValue()
+                                }
+                            } else if (friendlyMessage!!.textForFile.equals("declined")) {
+                                viewHolder!!.acceptMeetingButton!!.visibility = View.GONE;
+                                viewHolder!!.declineMeetingButton!!.visibility = View.GONE;
+
+                                viewHolder!!.messageTextView!!.text = "Declined: " + viewHolder!!.messageTextView!!.text.toString()
+                            } else if (friendlyMessage!!.textForFile.equals("accepted")) {
+                                viewHolder!!.acceptMeetingButton!!.visibility = View.GONE;
+                                viewHolder!!.declineMeetingButton!!.visibility = View.GONE;
+
+                                viewHolder!!.messageTextView!!.text =
+                                    "Accepted: " + viewHolder!!.messageTextView!!.text.toString()
+                            }
                         }
-                        viewHolder!!.declineMeetingButton!!.setOnClickListener{
+                        else
+                        {
 
+                            viewHolder!!.acceptMeetingButton!!.visibility = View.GONE;
+                            viewHolder!!.declineMeetingButton!!.visibility = View.GONE;
+                            if (friendlyMessage!!.textForFile.equals("declined")) {
+
+                                viewHolder!!.messageTextView!!.text =
+                                    "Declined: " + viewHolder!!.messageTextView!!.text.toString()
+                            } else if (friendlyMessage!!.textForFile.equals("accepted")) {
+
+                            viewHolder!!.messageTextView!!.text =
+                                "Accepted: " + viewHolder!!.messageTextView!!.text.toString()
+                            }
                         }
 
                     }
                     //////////////
 
-                    var currentUserId = mFirebaseUser!!.uid;
-                    var isMe: Boolean  = friendlyMessage!!.id!!.equals(currentUserId);
+;
                     if(isMe)
                     {
                         //Me to right side
@@ -242,8 +334,16 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 var friendlyMessage =  FriendlyMessage(mCurrentUserId, messageEdt.text.toString().trim(), currentUserName.toString().trim(), userId.toString().trim(), "text")
 
-                mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages")
-                    .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+
+
+
+//                mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages")
+//                    .push().setValue(friendlyMessage);
+
+                var ref = mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages");
+                val messId = ref.push().key;
+                friendlyMessage.messId = messId;
+                ref.child(messId!!).setValue(friendlyMessage);
 
                 //////////CHECK
                 var updateObj = HashMap<String, Any>()

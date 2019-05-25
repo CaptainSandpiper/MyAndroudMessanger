@@ -34,6 +34,10 @@
                 android:value="@string/google_maps_key"/>
 
         <activity
+                android:name=".activities.MeetingPlaceActivity"
+                android:label="@string/title_activity_meeting_place">
+        </activity>
+        <activity
                 android:name=".activities.EventPlaceActivity"
                 android:label="@string/title_activity_event_place">
         </activity>

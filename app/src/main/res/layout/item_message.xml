@@ -30,6 +30,7 @@ s
                     android:layout_toLeftOf="@id/messengerImageViewRigth"
                     android:textSize="15sp"
                     android:textStyle="bold"
+                    android:gravity="left"
                     android:layout_marginLeft="4dp"
                     android:text="Message"
                     android:layout_below="@+id/messengerTextView"
