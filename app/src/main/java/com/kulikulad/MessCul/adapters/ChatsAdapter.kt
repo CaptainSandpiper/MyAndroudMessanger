@@ -1,14 +1,15 @@
 package com.kulikulad.MessCul.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.kulikulad.MessCul.R
+import com.kulikulad.MessCul.activities.ChatActivity
 import com.kulikulad.MessCul.models.Chats
 import com.kulikulad.MessCul.models.getDialogId
 import com.squareup.picasso.Picasso
@@ -30,40 +31,17 @@ class ChatsAdapter (databaseQuery: DatabaseReference, var context: Context): Fir
 
         viewHolder!!.itemView.setOnClickListener{
 
-            Toast.makeText(context, "${chatId}",Toast.LENGTH_LONG).show();
-//            //create an alert dialog to current users if they want to see a profile or send message
-//            var options = arrayOf("Open Profile", "Send Message");
-//            var builder = AlertDialog.Builder(context)
-//            builder.setTitle("Select Options");
-//            builder.setItems(options, DialogInterface.OnClickListener{ dialogInterface, i ->
-//
-//                var userName = viewHolder.userNameTxt;
-//                var userStat = viewHolder.userStatusTxt;
-//                var profilePic = viewHolder.userProfilePicLink;
-//
-//                if(i == 0)
-//                {
-//                    //open user profile
-//                    var profileIntetn = Intent(context, ProfileActivity::class.java);
-//                    profileIntetn.putExtra("userId", userId);
-//                    profileIntetn.putExtra("name", userName);
-//                    profileIntetn.putExtra("status", userStat);
-//                    profileIntetn.putExtra("profile", profilePic);
-//                    context.startActivity(profileIntetn);
-//                }
-//                else
-//                {
-//                    //send message
-//                    var chatIntent = Intent(context, ChatActivity::class.java)
-//                    chatIntent.putExtra("userId", userId);
-//                    chatIntent.putExtra("name", userName);
-//                    chatIntent.putExtra("status", userStat);
-//                    chatIntent.putExtra("profile", profilePic);
-//                    context.startActivity(chatIntent);
-//                }
-//            });
-//
-//            builder.show();
+            var userName = viewHolder.userNameTxt;
+            var userStat = viewHolder.userStatusTxt;
+            var profilePic = viewHolder.userProfilePicLink;
+
+            var chatIntent = Intent(context, ChatActivity::class.java)
+            chatIntent.putExtra("userId", secUserId);
+            chatIntent.putExtra("name", userName);
+            chatIntent.putExtra("status", userStat);
+            chatIntent.putExtra("profile", profilePic);
+            context.startActivity(chatIntent);
+           // Toast.makeText(context, "${chatId}",Toast.LENGTH_LONG).show();
         }
     }
 
@@ -129,6 +107,11 @@ class ChatsAdapter (databaseQuery: DatabaseReference, var context: Context): Fir
                         .load(image)
                         .placeholder(R.drawable.profile_img)
                         .into(userProfilePic)
+
+                    userNameTxt = displayName.toString()
+                    userStatusTxt= userStatuss.toString();
+                    userProfilePicLink = thumnnail.toString();
+
                 }
 
                 override fun onCancelled(p0: DatabaseError) {

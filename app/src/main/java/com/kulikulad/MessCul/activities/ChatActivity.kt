@@ -1,32 +1,33 @@
 package com.kulikulad.MessCul.activities
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.annotation.TargetApi
 import android.app.Activity
 import android.app.DownloadManager
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
@@ -42,6 +43,7 @@ import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.custom_bar_image.view.*
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -49,12 +51,23 @@ import java.util.*
 
 class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    ////Audio record
+    private var output: String? = null
+    private var mediaRecorder: MediaRecorder? = null
+    private var state: Boolean = false
+    private var recordingStopped: Boolean = false
+    ////
+
     lateinit var mAdView : AdView;
     private val CHOOSING_FILE_REQUEST = 1234
     private val GALLERY_ID: Int = 1;
 
     private var fileNameSt:String? = null;
     private var fileUrlSt:String? = null;
+
+    var played = false;
+    var mp:MediaPlayer? = null;
+    var playedFilePath:String? = null;
 
     var userId:String? = null;
     var mFirebaseDatabaseRef:DatabaseReference? = null;
@@ -76,7 +89,7 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
         mAdView = this.findViewById(R.id.adView)
         val adRequest = AdRequest.Builder().build()
         mAdView.loadAd(adRequest)
-        ////delete
+        ////
 
         mStorageRef = FirebaseStorage.getInstance().reference;
         mFirebaseUser = FirebaseAuth.getInstance().currentUser;
@@ -120,28 +133,69 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
                     ////////////////CHECK
                     if(friendlyMessage!!.type.equals("file"))
                     {
-                        viewHolder!!.downloadFileButton!!.setOnClickListener{
 
-                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                            {
-                                if(checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)
-                                {
-                                    fileUrlSt = friendlyMessage!!.text;
-                                    fileNameSt = friendlyMessage!!.textForFile;
-                                    requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), STORAGE_PERMISSION_CODE)
+//                        var file = File("/MyChatApp/${friendlyMessage.textForFile.toString()}");
+                        var path = friendlyMessage.textForFile.toString().replace("%20"," ");
+                        var file = File(Environment.getExternalStorageDirectory().toString() + "/MyChatApp/${path}");
+                            viewHolder!!.downloadFileButton!!.setOnClickListener{
+
+                                //Toast.makeText(this@ChatActivity, "${file.exists()}", Toast.LENGTH_LONG).show();
+                                if(!file.exists()) {
+
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                                            fileUrlSt = friendlyMessage!!.text;
+                                            fileNameSt = friendlyMessage!!.textForFile;
+                                            requestPermissions(
+                                                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                                                STORAGE_PERMISSION_CODE
+                                            )
+                                        } else {
+                                            startDowloading(friendlyMessage!!.text, friendlyMessage!!.textForFile)
+                                        }
+                                    } else {
+                                        startDowloading(friendlyMessage!!.text, friendlyMessage!!.textForFile)
+                                    }
                                 }
                                 else
                                 {
-                                    startDowloading(friendlyMessage!!.text, friendlyMessage!!.textForFile)
+                                    if(friendlyMessage.textForFile.toString().endsWith(".mp3"))
+                                    {
+
+                                        val data = Uri.parse(Environment.getExternalStorageDirectory().toString() + "/MyChatApp/${friendlyMessage.textForFile}");
+
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                                                fileUrlSt = friendlyMessage!!.text;
+                                                fileNameSt = friendlyMessage!!.textForFile;
+                                                requestPermissions(
+                                                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                                                    STORAGE_PERMISSION_CODE
+                                                )
+                                            } else {
+                                                playMusic(Environment.getExternalStorageDirectory().toString() + "/MyChatApp/${path}");
+                                            }
+                                        }
+                                        else {
+                                            playMusic(Environment.getExternalStorageDirectory().toString() + "/MyChatApp/${path}");
+                                        }
+
+
+                                       if(played)
+                                       {
+                                           viewHolder!!.downloadFileButton!!.text = "Pause: ${friendlyMessage.textForFile}"
+                                       }
+                                        else
+                                       {
+                                           viewHolder!!.downloadFileButton!!.text = "Play: ${friendlyMessage.textForFile}"
+                                       }
+
+                                    }
+                                    Toast.makeText(this@ChatActivity, "EEEEEE" , Toast.LENGTH_LONG).show();
                                 }
                             }
-                            else
-                            {
-                                startDowloading(friendlyMessage!!.text, friendlyMessage!!.textForFile)
-                            }
-                            //startDowloading(friendlyMessage!!.text)
-                        }
                     }
+
                     //////////////////////////////////////////////////////
                     else if(friendlyMessage!!.type.equals("meeting"))
                     {
@@ -247,6 +301,12 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
                             }
                         }
 
+                    }
+                    else if(friendlyMessage!!.type.equals("pic"))
+                    {
+                        viewHolder!!.messageImageView!!.setOnClickListener{
+                            showBigImage(friendlyMessage.text!!);
+                        }
                     }
                     //////////////
 
@@ -362,6 +422,10 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
+        imageViewAAA.setOnClickListener{
+            imageViewAAA.visibility = View.GONE;
+        }
+
 
 
 
@@ -380,10 +444,15 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
         imageView3.setImageResource(R.drawable.ic_add_group_dialog);
         var subActionButton3 = itemBuilder.setContentView(imageView3).build();
 
+        var imageView4 = ImageView(this);
+        imageView4.setImageResource(R.drawable.ic_btn_more);
+        var subActionButton4 = itemBuilder.setContentView(imageView4).build();
+
         var actionMenu = FloatingActionMenu.Builder(this)
             .addSubActionView(subActionButton1)
             .addSubActionView(subActionButton2)
             .addSubActionView(subActionButton3)
+            .addSubActionView(subActionButton4)
             .attachTo(addMessageImageView)
             .build();
 
@@ -393,12 +462,10 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         subActionButton2.setOnClickListener{
-            //send pic
+
+            //var a = System.currentTimeMillis();
+            //Toast.makeText(this, "${a.toString()}", Toast.LENGTH_LONG).show();
             showChoosingFile();
-
-
-            //Toast.makeText(this,"$kek",Toast.LENGTH_LONG).show();
-
         }
 
         subActionButton3.setOnClickListener{
@@ -413,6 +480,111 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
 //            var mCheck = FirebaseStorage().getReference()
         }
 
+        subActionButton4.setOnClickListener{
+
+            mediaRecorder = MediaRecorder()
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                val permissions = arrayOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                ActivityCompat.requestPermissions(this, permissions,0)
+            } else {
+                mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.MIC)
+                mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                //mediaRecorder?.setOutputFile(output)
+            }
+
+
+
+            val window = PopupWindow(this)
+            val view = layoutInflater.inflate(R.layout.cv_mess_popup, null)
+            window.contentView = view
+
+            var startRecButton = view.findViewById<Button>(R.id.startRecordingButton);
+            var pauseRecButton = view.findViewById<Button>(R.id.pauseRecordingButton);
+            var sendRecButton = view.findViewById<Button>(R.id.sendVoiceButton);
+            var cancelButton = view.findViewById<Button>(R.id.cancelButton);
+            var statusOfRec = view.findViewById<TextView>(R.id.recordingStatus);
+
+            startRecButton.setOnClickListener{
+
+                statusOfRec.text = "recording"
+                var id= System.currentTimeMillis().toString();
+                output = Environment.getExternalStorageDirectory().absolutePath + "/MyChatApp/recording${id}.mp3"//change after
+                mediaRecorder?.setOutputFile(output)
+                startRecording()
+
+                Toast.makeText(this, "Start Recording", Toast.LENGTH_LONG).show();
+            }
+            pauseRecButton.setOnClickListener{
+                statusOfRec.text = "recording on pause"
+                pauseRecording()
+                Toast.makeText(this, "Pause Recording", Toast.LENGTH_LONG).show();
+            }
+            sendRecButton.setOnClickListener{
+                statusOfRec.text = "recording sends"
+                stopRecording()
+                window.dismiss();
+                Toast.makeText(this, "Send Recording", Toast.LENGTH_LONG).show();
+
+
+                ///////send audio messs
+
+                //var file = Uri.parse(output);
+                var file = Uri.fromFile(File(output));
+                Toast.makeText(this,"${file.toString()} ",Toast.LENGTH_LONG).show();
+                var fileName = getFileName(file.toString());
+                var filePath = mStorageRef!!.child("users_chat_files")
+                    .child(fileName);
+
+                filePath.putFile(file).addOnSuccessListener() { taskSnapshot ->
+                    filePath.downloadUrl.addOnCompleteListener { taskSnapshot ->
+                        if (taskSnapshot.isSuccessful) {
+                            var downloadUrl = taskSnapshot.result.toString()
+
+                            var currentUserName = intent.extras.get("name");
+
+                            var dialogId = getDialogId( mFirebaseUser!!.uid, userId.toString());
+                            var friendlyMessage =  FriendlyMessage(mFirebaseUser!!.uid, downloadUrl, currentUserName.toString().trim(), userId.toString().trim(), "file", fileName)
+
+                            mFirebaseDatabaseRef!!.child("Chats").child(dialogId!!).child("messages")
+                                .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+
+
+                            //////////CHECK
+                            var updateObj = HashMap<String, Any>()
+                            updateObj.put("${userId.toString().trim()}", "new")
+                            updateObj.put("${mFirebaseUser!!.uid}", "old")
+
+                            mFirebaseDatabaseRef!!.child("Chats").child(dialogId).updateChildren(updateObj);
+
+                            mFirebaseDatabaseRef!!.child("Users").child(mFirebaseUser!!.uid).child("Chats").child(userId.toString().trim()).child("messages")
+                                .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+                            mFirebaseDatabaseRef!!.child("Users").child(userId.toString().trim()).child("Chats").child(mFirebaseUser!!.uid).child("messages")
+                                .push().setValue(friendlyMessage); // push used because every message must have ow unique id
+
+                            //////////
+                        }
+                        else
+                        {
+                            Toast.makeText(this,"Somethimg goes wrong ",Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+
+                ///////
+            }
+            cancelButton.setOnClickListener{
+                stopRecording()
+                window.dismiss();
+            }
+
+
+            window.showAsDropDown(subActionButton4)
+
+
+        }
 
     }
 
@@ -427,6 +599,7 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
         var showLocationMeetingButton: Button? = null;
         var acceptMeetingButton: Button? = null;
         var declineMeetingButton: Button? = null;
+        var imageview: ImageView? = null;
 
         //experiment
         var activity:Activity? =null;
@@ -440,6 +613,7 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
             showLocationMeetingButton = itemView.findViewById(R.id.showLocationMeeting);
             acceptMeetingButton = itemView.findViewById(R.id.acceptMeeting);
             declineMeetingButton = itemView.findViewById(R.id.declineMeeting);
+            imageview = itemView.findViewById(R.id.imageViewAAA);
 
 
 
@@ -457,10 +631,6 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
                     .load(friendlyMessage.text)
                     .placeholder(R.drawable.happy_woman)
                     .into(messageImageView);
-
-                messageImageView!!.setOnClickListener{
-
-                }
             }
 
             else if(friendlyMessage.type.equals("file"))
@@ -468,7 +638,21 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
                 downloadFileButton = itemView.findViewById(R.id.downloadFileButton);
                 downloadFileButton!!.visibility = View.VISIBLE;
                 downloadFileButton!!.isClickable = true;
-                downloadFileButton!!.text = "DOWNLOAD: "+friendlyMessage.textForFile;
+                var file = File(Environment.getExternalStorageDirectory().toString() + "/MyChatApp/${friendlyMessage.textForFile}");
+                if(!file.exists()) {
+                    downloadFileButton!!.text = "DOWNLOAD: " + friendlyMessage.textForFile;
+                }
+                else
+                {
+                    if(friendlyMessage.textForFile.toString().endsWith(".mp3"))
+                    {
+                        downloadFileButton!!.text = "PLAY: " + friendlyMessage.textForFile;
+                    }
+                    else
+                    {
+                        downloadFileButton!!.text = "OPEN: " + friendlyMessage.textForFile;
+                    }
+                }
 
             }
 
@@ -479,12 +663,7 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
                 declineMeetingButton!!.visibility =View.VISIBLE;
 
             }
-
         }
-
-
-
-
     }
 
     private fun showChoosingImage() {
@@ -562,9 +741,7 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
         {
             file = data!!.data;
             Toast.makeText(this,"${file.toString()} ",Toast.LENGTH_LONG).show();
-
             var fileName = getFileName(file.toString());
-
             var filePath = mStorageRef!!.child("users_chat_files")
                 .child(answer + fileName);
 
@@ -598,7 +775,7 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                     else
                     {
-                        //Toast.makeText(this,"Somethimg goes wrong ",Toast.LENGTH_LONG).show();
+                        Toast.makeText(this,"Somethimg goes wrong ",Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -651,13 +828,121 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
         //Toast.makeText(this, "AAAAAAAAAAAAA", Toast.LENGTH_LONG).show();
     }
 
-
-
-    override fun onMapReady(map: GoogleMap?) {
-        map!!.addMarker(MarkerOptions().position(LatLng(0.0,0.0)).title("Marker in Sydney"))
-        map!!.moveCamera(CameraUpdateFactory.newLatLng(LatLng(0.0,0.0)))
-
+    @Throws(IOException::class)
+    fun getResourceFiles(path: String): List<String> = getResourceAsStream(path).use{
+        return if(it == null) emptyList()
+        else BufferedReader(InputStreamReader(it)).readLines()
     }
 
+    private fun getResourceAsStream(resource: String): InputStream? =
+        Thread.currentThread().contextClassLoader.getResourceAsStream(resource)
+            ?: resource::class.java.getResourceAsStream(resource)
+
+    override fun onMapReady(map: GoogleMap?) {
+    }
+
+    fun playMusic(data:String)
+    {
+        if(playedFilePath == null )
+        {
+            playedFilePath = data;
+            var uri =  Uri.parse(playedFilePath);
+            mp = MediaPlayer.create(this, uri);
+            mp!!.setOnCompletionListener {
+                played = false;
+            }
+            mp!!.start();
+        }
+        if(playedFilePath != null)
+        {
+            if (playedFilePath.equals(data))
+            {
+                if(!played)
+                {
+                    mp!!.start();
+                    played = true;
+                }
+                else
+                {
+                    mp!!.pause();
+                    played = false;
+                }
+            }
+            else
+            {
+
+                mp!!.stop();
+                playedFilePath = data;
+                var uri =  Uri.parse(playedFilePath);
+                mp = MediaPlayer.create(this, uri);
+                mp!!.setOnCompletionListener {
+                    played = false;
+                }
+                mp!!.start();
+                played = true;
+
+            }
+        }
+    }
+
+    ////audio recording
+    private fun startRecording() {
+        try {
+            mediaRecorder?.prepare()
+            mediaRecorder?.start()
+            state = true
+            Toast.makeText(this, "Recording started!", Toast.LENGTH_SHORT).show()
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    @SuppressLint("RestrictedApi", "SetTextI18n")
+    @TargetApi(Build.VERSION_CODES.N)
+    private fun pauseRecording() {
+        if (state) {
+            if (!recordingStopped) {
+                Toast.makeText(this,"Stopped!", Toast.LENGTH_SHORT).show()
+                mediaRecorder?.pause()
+                recordingStopped = true
+                //button_pause_recording.text = "Resume"
+            } else {
+                resumeRecording()
+            }
+        }
+    }
+
+
+    private fun resumeRecording() {
+        Toast.makeText(this,"Resume!", Toast.LENGTH_SHORT).show()
+        mediaRecorder?.resume()
+        //button_pause_recording.text = "Pause"
+        recordingStopped = false
+    }
+
+    private fun stopRecording(){
+        if (state) {
+            mediaRecorder?.stop()
+            mediaRecorder?.release()
+            mediaRecorder = null;
+            state = false
+        } else {
+            Toast.makeText(this, "You are not recording right now!", Toast.LENGTH_SHORT).show()
+        }
+    }
+    ////
+
+
+    fun showBigImage(path:String)
+    {
+        Picasso.get()
+            .load(path)
+            .placeholder(R.drawable.happy_woman)
+            .into(imageViewAAA);
+
+        imageViewAAA.visibility = View.VISIBLE;
+    }
 
 }

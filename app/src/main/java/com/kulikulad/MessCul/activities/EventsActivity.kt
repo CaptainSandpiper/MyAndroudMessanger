@@ -244,24 +244,18 @@ class EventsActivity : AppCompatActivity() {
                 }
             }
 
-
             var start:Long? = null;
             var end: Long? = null;
             start = newWeek!!.start + (dayOfWeek - 1) * 24 * 60 * 60 * 1000 + hour * 60 * 60 * 1000 + minutes * 60 * 1000 // DateUtils.WEEK_IN_MILLIS
             end = start + 60 * 60 * 1000 //% (DateUtils.DAY_IN_MILLIS / 8)
             events.add(BaseEvent(meetingSubj!!, meetingDescr, (random.nextInt() or 0xFF000000.toInt()) and 0x00202020.inv(),start!!, end!! ))
 
-
             if(times == count-1)
             {
                 calendar.setEventsForWeek(newWeek!!, events)
             }
-
             times++;
-
         }
-
-
     }
 
 //    private fun populate(week: Week, force: Boolean = false) {
