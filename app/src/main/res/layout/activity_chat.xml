@@ -81,11 +81,16 @@
     <ImageView
 
             android:src="@drawable/happy_woman"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="493dp"
+            android:visibility="invisible"
             android:layout_gravity="center"
             android:id="@+id/imageViewAAA" app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent" android:layout_alignParentStart="true"
+            android:layout_marginLeft="0dp" android:layout_marginStart="0dp" android:layout_alignParentLeft="true"
+            android:layout_alignParentEnd="true" android:layout_alignParentRight="true" android:layout_marginRight="0dp"
+            android:layout_marginEnd="0dp" android:layout_alignTop="@+id/messageRecyclerView"
+            android:layout_marginTop="4dp" android:layout_marginBottom="5dp"
+            android:layout_alignBottom="@+id/messageRecyclerView"/>
 </RelativeLayout>
