@@ -25,9 +25,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
-import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.firebase.auth.FirebaseAuth
@@ -45,7 +43,6 @@ import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.activity_chat.*
 import kotlinx.android.synthetic.main.custom_bar_image.view.*
-import kotlinx.android.synthetic.main.users_row.*
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -87,11 +84,11 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_chat)
 
         ////banner
-        MobileAds.initialize(this,"ca-app-pub-3940256099942544~3347511713");
-
-        mAdView = this.findViewById(R.id.adView)
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
+//        MobileAds.initialize(this,"ca-app-pub-3940256099942544~3347511713");
+//
+//        mAdView = this.findViewById(R.id.adView)
+//        val adRequest = AdRequest.Builder().build()
+//        mAdView.loadAd(adRequest)
         ////
 
         mStorageRef = FirebaseStorage.getInstance().reference;
@@ -481,15 +478,15 @@ class ChatActivity : AppCompatActivity(), OnMapReadyCallback {
         var subActionButton1 = itemBuilder.setContentView(imageView1).build();
 
         var imageView2 = ImageView(this);
-        imageView2.setImageResource(R.drawable.ic_add_friend);
+        imageView2.setImageResource(R.drawable.docu);
         var subActionButton2 = itemBuilder.setContentView(imageView2).build();
 
         var imageView3 = ImageView(this);
-        imageView3.setImageResource(R.drawable.ic_add_group_dialog);
+        imageView3.setImageResource(R.drawable.meeting);
         var subActionButton3 = itemBuilder.setContentView(imageView3).build();
 
         var imageView4 = ImageView(this);
-        imageView4.setImageResource(R.drawable.ic_btn_more);
+        imageView4.setImageResource(R.drawable.micro4);
         var subActionButton4 = itemBuilder.setContentView(imageView4).build();
 
         var actionMenu = FloatingActionMenu.Builder(this)

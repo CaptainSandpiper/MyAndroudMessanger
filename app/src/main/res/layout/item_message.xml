@@ -13,7 +13,7 @@
         <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-s
+
             <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/messengerImageView"
                     android:layout_marginEnd="8dp"
